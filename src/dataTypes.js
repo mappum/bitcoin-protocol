@@ -1,52 +1,61 @@
 'use strict'
 
-const vstruct = require('varstruct')
+const struct = require('varstruct')
 const ip = require('ip')
+const BN = require('bn.js')
 
 const MAX_NUMBER = 0x1fffffffffffff
 const IPV4_PREFIX = new Buffer('00000000000000000000ffff', 'hex')
 
-function codec (_encode, _decode, _encodingLength) {
-  function encode (value, buffer, offset) {
-    if (typeof buffer === 'number') {
-      offset = buffer
-      buffer = null
-    } else if (offset && buffer) {
-      buffer = buffer.slice(offset)
+function codec (_encode, _decode, _encodingLength, length) {
+  const encodingLength = _encodingLength || (() => length)
+
+  function encode (value, buf, offset) {
+    if (typeof buf === 'number') {
+      offset = buf
+      buf = null
+    } else if (offset && buf) {
+      buf = buf.slice(offset)
     }
-    buffer = buffer || new Buffer(_encodingLength(value))
-    encode.bytes = _encode(value, buffer)
-    return buffer
+    buf = buf || new Buffer(_encodingLength(value))
+    encode.bytes = _encode(value, buf)
+    if (length != null) encode.bytes = length
+    return buf
   }
 
-  function decode (buffer, start, end) {
+  function decode (buf, start, end) {
     start = start || 0
-    end = end || buffer.length
-    buffer = buffer.slice(start, end)
-    return _decode(buffer, decode, arguments)
+    end = end || buf.length
+    buf = buf.slice(start, end)
+    if (length != null) decode.bytes = length
+    return _decode(buf, decode, arguments)
   }
 
   encode.bytes = decode.bytes = 0
-  return { encode, decode, encodingLength: _encodingLength }
+  return { encode, decode, encodingLength, length }
 }
 
-exports.buffer = length => codec(
+exports.boolean = codec(
+  function encode (value, buf) {
+    buf.writeUInt8(+!!value, 0)
+  },
+  function decode (buf, d) {
+    return !!buf.readUInt8(0)
+  },
+  null, 1
+)
+
+const buffer = exports.buffer = length => codec(
   function encode (value, buf) {
     if (value.length !== length) {
       throw new Error(`Expected Buffer of length ${length}, got length ${value.length}`)
     }
     value.copy(buf)
-    return length
   },
-
   function decode (buf, d) {
-    d.bytes = length
     return buf.slice(0, length)
   },
-
-  function encodingLength () {
-    return length
-  }
+  null, length
 )
 
 const varint = exports.varint = codec(
@@ -112,13 +121,18 @@ exports.string = codec(
     if (Buffer.byteLength(s) > buf.length) {
       throw new Error('String value is larger than Buffer')
     }
+    if (s.length === 0) {
+      buf.writeUInt8(0, 0)
+      return 1
+    }
     return buf.write(s)
   },
 
   function decode (buf, d) {
     const length = varint.decode(buf)
-    d.bytes = varint.decode.bytes + length
-    return buf.slice(varint.decode.bytes, length).toString('utf8')
+    const bytes = varint.decode.bytes
+    d.bytes = bytes + length
+    return buf.slice(bytes, bytes + length).toString('utf8')
   },
 
   function encodingLength (s) {
@@ -134,11 +148,9 @@ exports.fixedString = length => codec(
     }
     const bytes = buf.write(s)
     buf.fill(0, bytes)
-    return length
   },
 
   function decode (buf, d) {
-    d.bytes = length
     var firstZero = null
     for (let i = 0; i < length; i++) {
       if (buf[i] === 0 && firstZero == null) firstZero = i
@@ -148,10 +160,17 @@ exports.fixedString = length => codec(
     }
     return buf.slice(0, firstZero).toString('utf8')
   },
+  null, length
+)
 
-  function encodingLength (s) {
-    return length
-  }
+exports.Int64LE = codec(
+  function encode (bn, buf) {
+    bn.toBuffer().copy(buf.slice(0, 8))
+  },
+  function decode (buf, d) {
+    return new BN(buf.slice(0, 8).toString('hex'), 'hex')
+  },
+  null, 8
 )
 
 const ipAddress = exports.ipAddress = codec(
@@ -164,32 +183,26 @@ const ipAddress = exports.ipAddress = codec(
     } else {
       throw new Error('Invalid IP address value')
     }
-    return 16
   },
-
   function decode (buf, d) {
-    d.bytes = 16
     if (buf.slice(0, 12).compare(IPV4_PREFIX) === 0) {
-      return ip.toString(buf, 12, 16)
+      return ip.toString(buf.slice(12, 16))
     }
-    return ip.toString(buf, 0, 16)
+    return ip.toString(buf.slice(0, 16))
   },
-
-  function encodingLength (s) {
-    return 16
-  }
+  null, 16
 )
 
 exports.peerAddress = noTime => {
-  const struct = {}
-  if (!noTime) struct.time = vstruct.UInt32LE
-  struct.services = vstruct.buffer(8)
-  struct.address = ipAddress
-  struct.port = vstruct.UInt16LE
-  return vstruct(struct)
+  const addr = {}
+  if (!noTime) addr.time = struct.UInt32LE
+  addr.services = buffer(8)
+  addr.address = ipAddress
+  addr.port = struct.UInt16BE
+  return struct(addr)
 }
 
-exports.inventoryVector = vstruct({
-  type: vstruct.UInt32LE,
-  hash: vstruct.buffer(32)
+exports.inventoryVector = struct({
+  type: struct.UInt32LE,
+  hash: buffer(32)
 })
