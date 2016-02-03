@@ -6,6 +6,8 @@ const peerAddress = types.peerAddress(false)
 const buffer32 = types.buffer(32)
 const buffer8 = types.buffer(8)
 
+const NULL_BUFFER = new Buffer(0)
+
 exports.version = struct({
   version: struct.UInt32LE,
   services: buffer8,
@@ -37,7 +39,7 @@ exports.getheaders = struct({
 })
 
 exports.tx = struct({
-  version: struct.Int32BE,
+  version: struct.Int32LE,
   in: types.vararray(types.varint, struct({
     prevOut: struct({
       txid: buffer32,
@@ -54,7 +56,7 @@ exports.tx = struct({
 })
 
 exports.block = struct({
-  version: struct.Int32BE,
+  version: struct.Int32LE,
   prevBlock: buffer32,
   merkleRoot: buffer32,
   timestamp: struct.UInt32LE,
@@ -64,7 +66,7 @@ exports.block = struct({
 })
 
 exports.headers = types.vararray(types.varint, struct({
-  version: struct.Int32BE,
+  version: struct.Int32LE,
   prevBlock: buffer32,
   merkleRoot: buffer32,
   timestamp: struct.UInt32LE,
@@ -81,41 +83,35 @@ const rejectStruct = struct({
   ccode: struct.UInt8,
   reason: types.varstring
 })
-const rejectDataLengths = {
-  0x40: 32,
-  0x41: 32,
-  0x42: 32,
-  0x43: 32
-}
-exports.reject = types.codec(
+exports.reject = message => types.codec(
   function encode (value, buf) {
     rejectStruct.encode(value, buf)
     var bytes = rejectStruct.encode.bytes
-    const dataLength = rejectDataLengths[value.ccode]
-    if (dataLength) {
+    if (value.data) {
       value.data.copy(buf, bytes)
-      bytes += 32
+      bytes += value.data.length
     }
     return bytes
   },
 
   function decode (buf, d) {
+    d.bytes = message.length
     const value = rejectStruct.decode(buf)
-    d.bytes = rejectStruct.decode.bytes
-    const dataLength = rejectDataLengths[value.ccode]
-    if (dataLength) {
-      value.data = buf.slice(d.bytes, d.bytes + dataLength)
-      d.bytes += dataLength
+    if (message.length > rejectStruct.length) {
+      value.data = buf.slice(d.bytes, d.bytes + message.length)
+    } else {
+      value.data = NULL_BUFFER
     }
     return value
   },
 
   function encodingLength (value) {
-    var bytes = rejectStruct.encodingLength(value)
-    bytes += rejectDataLengths[value.ccode] || 0
-    return bytes
+    return rejectStruct.length + (value.data ? value.data.length : 0)
   }
 )
+const reject = exports.reject()
+exports.reject.encode = reject.encode
+exports.reject.encodingLength = reject.encodingLength
 
 exports.filterload = struct({
   data: struct.varbuf(types.varint),

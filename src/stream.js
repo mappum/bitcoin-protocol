@@ -26,51 +26,52 @@ function createDecodeStream (opts) {
   var bl = new BufferList()
   var message
   return through.obj(function (chunk, enc, cb) {
-    bl.append(chunk)
-    while (bl.length > 0) {
-      if (!message) {
-        if (messageHeader.length > chunk.length) break
-        try {
-          message = messageHeader.decode(chunk)
-        } catch (err) {
-          return cb(err)
+    try {
+      bl.append(chunk)
+      while (bl.length > 0) {
+        if (!message) {
+          if (messageHeader.length > bl.length) break
+          message = messageHeader.decode(bl.slice(0, messageHeader.length))
+
+          if (opts.magic && message.magic !== opts.magic) {
+            return cb(new Error(`Magic value in message ` +
+              `(${message.magic.toString(16)}) did not match expected ` +
+              `(${opts.magic.toString(16)})`))
+          }
+
+          if (!messages[message.command]) {
+            return cb(new Error(`Unrecognized command: "${message.command}"`))
+          }
+
+          bl.consume(messageHeader.decode.bytes)
         }
-        if (opts.magic && message.magic !== opts.magic) {
-          return cb(new Error(`Magic value in message ` +
-            `(${message.magic.toString(16)}) did not match expected ` +
-            `(${opts.magic.toString(16)})`))
-        }
-        bl.consume(messageHeader.decode.bytes)
         if (message.length > bl.length) break
-      }
 
-      let command = messages[message.command]
-      if (!command) {
-        return cb(new Error(`Unrecognized command: "${message.command}"`))
-      }
+        let payload = bl.slice(0, message.length)
+        let checksum = getChecksum(payload)
+        if (checksum.compare(message.checksum) !== 0) {
+          return cb(new Error(`Invalid message checksum. ` +
+            `In header: "${message.checksum.toString('hex')}", ` +
+            `calculated: "${checksum.toString('hex')}"`))
+        }
 
-      let payload = bl.slice(0, message.length)
-      let checksum = getChecksum(payload)
-      if (checksum.compare(message.checksum) !== 0) {
-        return cb(new Error(`Invalid message checksum. ` +
-          `In header: "${message.checksum.toString('hex')}", ` +
-          `calculated: "${checksum.toString('hex')}"`))
-      }
+        let command = messages[message.command]
+        if (typeof command === 'function') {
+          command = command(message, payload)
+        }
 
-      try {
         message.payload = command.decode(payload)
-      } catch (err) {
-        return cb(err)
-      }
-      if (command.decode.bytes !== message.length) {
-        console.log('message', message)
-        return cb(new Error('Message length did not match header. ' +
-          `In header: ${message.length}, read: ${command.decode.bytes}`))
-      }
+        if (command.decode.bytes !== message.length) {
+          return cb(new Error('Message length did not match header. ' +
+            `In header: ${message.length}, read: ${command.decode.bytes}`))
+        }
 
-      bl.consume(message.length)
-      this.push(message)
-      message = null
+        bl.consume(message.length)
+        this.push(message)
+        message = null
+      }
+    } catch (err) {
+      return cb(err)
     }
     cb(null)
   })
