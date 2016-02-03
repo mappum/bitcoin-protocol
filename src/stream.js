@@ -21,7 +21,8 @@ const messageHeader = struct({
   checksum: types.buffer(4)
 })
 
-function createDecodeStream () {
+function createDecodeStream (opts) {
+  opts = opts || {}
   var bl = new BufferList()
   var message
   return through.obj(function (chunk, enc, cb) {
@@ -33,6 +34,11 @@ function createDecodeStream () {
           message = messageHeader.decode(chunk)
         } catch (err) {
           return cb(err)
+        }
+        if (opts.magic && message.magic !== opts.magic) {
+          return cb(new Error(`Magic value in message ` +
+            `(${message.magic.toString(16)}) did not match expected ` +
+            `(${opts.magic.toString(16)})`))
         }
         bl.consume(messageHeader.decode.bytes)
         if (message.length > bl.length) break
@@ -70,7 +76,8 @@ function createDecodeStream () {
   })
 }
 
-function createEncodeStream () {
+function createEncodeStream (opts) {
+  opts = opts || {}
   return through.obj(function (chunk, enc, cb) {
     const command = messages[chunk.command]
     if (!command) {
@@ -86,6 +93,7 @@ function createEncodeStream () {
 
     chunk.length = command.encode.bytes
     chunk.checksum = getChecksum(payload)
+    chunk.magic = chunk.magic || opts.magic
     var header
     try {
       header = messageHeader.encode(chunk)
