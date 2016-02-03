@@ -73,15 +73,49 @@ exports.headers = types.vararray(types.varint, struct({
   nTransactions: types.varint
 }))
 
-exports.ping = struct({ nonce: buffer8 })
-exports.pong = exports.ping
+exports.ping =
+exports.pong = struct({ nonce: buffer8 })
 
-exports.reject = struct({
+const rejectStruct = struct({
   message: types.varstring,
   ccode: struct.UInt8,
-  reason: types.varstring,
-  data: buffer32
+  reason: types.varstring
 })
+const rejectDataLengths = {
+  0x40: 32,
+  0x41: 32,
+  0x42: 32,
+  0x43: 32
+}
+exports.reject = types.codec(
+  function encode (value, buf) {
+    rejectStruct.encode(value, buf)
+    var bytes = rejectStruct.encode.bytes
+    const dataLength = rejectDataLengths[value.ccode]
+    if (dataLength) {
+      value.data.copy(buf, bytes)
+      bytes += 32
+    }
+    return bytes
+  },
+
+  function decode (buf, d) {
+    const value = rejectStruct.decode(buf)
+    d.bytes = rejectStruct.decode.bytes
+    const dataLength = rejectDataLengths[value.ccode]
+    if (dataLength) {
+      value.data = buf.slice(d.bytes, d.bytes + dataLength)
+      d.bytes += dataLength
+    }
+    return value
+  },
+
+  function encodingLength (value) {
+    var bytes = rejectStruct.encodingLength(value)
+    bytes += rejectDataLengths[value.ccode] || 0
+    return bytes
+  }
+)
 
 exports.filterload = struct({
   data: struct.varbuf(types.varint),
