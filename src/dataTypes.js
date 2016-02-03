@@ -7,6 +7,8 @@ const BN = require('bn.js')
 const MAX_NUMBER = 0x1fffffffffffff
 const IPV4_PREFIX = new Buffer('00000000000000000000ffff', 'hex')
 
+const codec =
+exports.codec =
 function codec (_encode, _decode, _encodingLength, length) {
   const encodingLength = _encodingLength || (() => length)
 
@@ -116,7 +118,8 @@ const varint = exports.varint = codec(
   }
 )
 
-exports.string = codec(
+const varstring =
+exports.varstring = codec(
   function encode (s, buf) {
     if (Buffer.byteLength(s) > buf.length) {
       throw new Error('String value is larger than Buffer')
@@ -207,6 +210,7 @@ exports.inventoryVector = struct({
   hash: buffer(32)
 })
 
+const vararray =
 exports.vararray = (lenType, itemType) => codec(
   function encode (array, buf) {
     if (!Array.isArray(array)) {
@@ -244,3 +248,19 @@ exports.vararray = (lenType, itemType) => codec(
     return length
   }
 )
+
+exports.alertPayload = struct({
+  version: struct.Int32LE,
+  relayUntil: struct.UInt64LE,
+  expiration: struct.UInt64LE,
+  id: struct.Int32LE,
+  cancel: struct.Int32LE,
+  cancelSet: vararray(varint, struct.Int32LE),
+  minVer: struct.Int32LE,
+  maxVer: struct.Int32LE,
+  subVerSet: vararray(varint, varstring),
+  priority: struct.Int32LE,
+  comment: varstring,
+  statusBar: varstring,
+  reserved: varstring
+})

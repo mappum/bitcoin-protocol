@@ -1,7 +1,7 @@
 const through = require('through2')
-const vstruct = require('varstruct')
+const struct = require('varstruct')
 const createHash = require('create-hash')
-const dataTypes = require('./dataTypes.js')
+const types = require('./dataTypes.js')
 const messages = require('./messages.js')
 
 function getChecksum (data) {
@@ -11,17 +11,22 @@ function getChecksum (data) {
     .slice(0, 4)
 }
 
-const messageHeader = vstruct({
-  magic: vstruct.UInt32LE,
-  command: dataTypes.fixedString(12),
-  length: vstruct.UInt32LE,
-  checksum: vstruct.buffer(4)
+const messageHeader = struct({
+  magic: struct.UInt32LE,
+  command: types.fixedString(12),
+  length: struct.UInt32LE,
+  checksum: types.buffer(4)
 })
 
 function createDecodeStream () {
   return through.obj(function (chunk, enc, cb) {
     while (chunk.length > 0) {
-      const message = messageHeader.decode(chunk)
+      var message
+      try {
+        message = messageHeader.decode(chunk)
+      } catch (err) {
+        return cb(err)
+      }
       chunk = chunk.slice(messageHeader.decode.bytes)
       if (message.length > chunk.length) {
         return cb(new Error('Incomplete message data'))
