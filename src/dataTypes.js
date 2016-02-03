@@ -9,7 +9,7 @@ const IPV4_PREFIX = new Buffer('00000000000000000000ffff', 'hex')
 
 const codec =
 exports.codec =
-function codec (_encode, _decode, _encodingLength, length) {
+function (_encode, _decode, _encodingLength, length) {
   const encodingLength = _encodingLength || (() => length)
 
   function encode (value, buf, offset) {
@@ -29,8 +29,11 @@ function codec (_encode, _decode, _encodingLength, length) {
     start = start || 0
     end = end || buf.length
     buf = buf.slice(start, end)
-    if (length != null) decode.bytes = length
-    return _decode(buf, decode, arguments)
+    const value = _decode(buf, decode)
+    if (length != null) {
+      decode.bytes = length
+    }
+    return value
   }
 
   encode.bytes = decode.bytes = 0

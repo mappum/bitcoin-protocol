@@ -1,3 +1,6 @@
+'use strict'
+
+const BufferList = require('bl')
 const through = require('through2')
 const struct = require('varstruct')
 const createHash = require('create-hash')
@@ -19,30 +22,33 @@ const messageHeader = struct({
 })
 
 function createDecodeStream () {
+  var bl = new BufferList()
+  var message
   return through.obj(function (chunk, enc, cb) {
-    while (chunk.length > 0) {
-      var message
-      try {
-        message = messageHeader.decode(chunk)
-      } catch (err) {
-        return cb(err)
-      }
-      chunk = chunk.slice(messageHeader.decode.bytes)
-      if (message.length > chunk.length) {
-        return cb(new Error('Incomplete message data'))
+    bl.append(chunk)
+    while (bl.length > 0) {
+      if (!message) {
+        if (messageHeader.length > chunk.length) break
+        try {
+          message = messageHeader.decode(chunk)
+        } catch (err) {
+          return cb(err)
+        }
+        bl.consume(messageHeader.decode.bytes)
+        if (message.length > bl.length) break
       }
 
-      const command = messages[message.command]
+      let command = messages[message.command]
       if (!command) {
         return cb(new Error(`Unrecognized command: "${message.command}"`))
       }
 
-      const payload = chunk.slice(0, message.length)
-      const checksum = getChecksum(payload)
+      let payload = bl.slice(0, message.length)
+      let checksum = getChecksum(payload)
       if (checksum.compare(message.checksum) !== 0) {
         return cb(new Error(`Invalid message checksum. ` +
-          `Expected "${message.checksum.toString('hex')}", ` +
-          `got "${checksum.toString('hex')}"`))
+          `In header: "${message.checksum.toString('hex')}", ` +
+          `calculated: "${checksum.toString('hex')}"`))
       }
 
       try {
@@ -51,11 +57,14 @@ function createDecodeStream () {
         return cb(err)
       }
       if (command.decode.bytes !== message.length) {
-        return cb(new Error('Message length did not match header'))
+        console.log('message', message)
+        return cb(new Error('Message length did not match header. ' +
+          `In header: ${message.length}, read: ${command.decode.bytes}`))
       }
 
-      chunk = chunk.slice(message.length)
+      bl.consume(message.length)
       this.push(message)
+      message = null
     }
     cb(null)
   })
