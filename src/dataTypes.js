@@ -206,3 +206,41 @@ exports.inventoryVector = struct({
   type: struct.UInt32LE,
   hash: buffer(32)
 })
+
+exports.vararray = (lenType, itemType) => codec(
+  function encode (array, buf) {
+    if (!Array.isArray(array)) {
+      throw new Error('Value must be an array')
+    }
+    lenType.encode(array.length, buf)
+    var bytes = lenType.encode.bytes
+    buf = buf.slice(bytes)
+    for (let item of array) {
+      itemType.encode(item, buf)
+      bytes += itemType.encode.bytes
+      buf = buf.slice(itemType.encode.bytes)
+    }
+    return bytes
+  },
+
+  function decode (buf, d) {
+    const length = lenType.decode(buf)
+    d.bytes = lenType.decode.bytes
+    buf = buf.slice(lenType.decode.bytes)
+    const array = new Array(length)
+    for (let i = 0; i < length; i++) {
+      array[i] = itemType.decode(buf)
+      d.bytes += itemType.decode.bytes
+      buf = buf.slice(itemType.decode.bytes)
+    }
+    return array
+  },
+
+  function encodingLength (array) {
+    var length = lenType.encodingLength(array.length)
+    for (let item of array) {
+      length += itemType.encodingLength(item)
+    }
+    return length
+  }
+)
