@@ -1,0 +1,26 @@
+{
+  "name": "bitcoin-protocol",
+  "version": "0.0.0",
+  "description": "Low-level bitcoin network encoding/decoding",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "bitcoin",
+    "networking",
+    "p2p",
+    "network",
+    "encode",
+    "decode",
+    "webcoin"
+  ],
+  "author": "Matt Bell <mappum@gmail.com>",
+  "license": "MIT",
+  "dependencies": {
+    "from2": "^2.1.1",
+    "ip": "^1.1.0",
+    "through2": "^2.0.0",
+    "varstruct": "^4.2.0"
+  }
+}
