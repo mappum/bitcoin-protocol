@@ -6,7 +6,7 @@ const ip = require('ip')
 const MAX_NUMBER = 0x1fffffffffffff
 const IPV4_PREFIX = new Buffer('00000000000000000000ffff', 'hex')
 
-function encoder (_encode, _decode, _encodingLength) {
+function codec (_encode, _decode, _encodingLength) {
   function encode (value, buffer, offset) {
     if (typeof buffer === 'number') {
       offset = buffer
@@ -30,7 +30,26 @@ function encoder (_encode, _decode, _encodingLength) {
   return { encode, decode, encodingLength: _encodingLength }
 }
 
-const varint = exports.varint = encoder(
+exports.buffer = length => codec(
+  function encode (value, buf) {
+    if (value.length !== length) {
+      throw new Error(`Expected Buffer of length ${length}, got length ${value.length}`)
+    }
+    value.copy(buf)
+    return length
+  },
+
+  function decode (buf, d) {
+    d.bytes = length
+    return buf.slice(0, length)
+  },
+
+  function encodingLength () {
+    return length
+  }
+)
+
+const varint = exports.varint = codec(
   function encode (n, buf) {
     if (n % 1) throw new Error('Varint value must be an integer')
     if (n < 0xfd) {
@@ -88,7 +107,7 @@ const varint = exports.varint = encoder(
   }
 )
 
-exports.string = encoder(
+exports.string = codec(
   function encode (s, buf) {
     if (Buffer.byteLength(s) > buf.length) {
       throw new Error('String value is larger than Buffer')
@@ -108,7 +127,7 @@ exports.string = encoder(
   }
 )
 
-exports.fixedString = length => encoder(
+exports.fixedString = length => codec(
   function encode (s, buf) {
     if (Buffer.byteLength(s) > length) {
       throw new Error('String length is out of bounds')
@@ -135,7 +154,7 @@ exports.fixedString = length => encoder(
   }
 )
 
-const ipAddress = exports.ipAddress = encoder(
+const ipAddress = exports.ipAddress = codec(
   function encode (addr, buf) {
     if (ip.isV4Format(addr)) {
       IPV4_PREFIX.copy(buf)
