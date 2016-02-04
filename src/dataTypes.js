@@ -17,11 +17,9 @@ function (_encode, _decode, _encodingLength, length) {
     if (typeof buf === 'number') {
       offset = buf
       buf = null
-    } else if (offset && buf) {
-      buf = buf.slice(offset)
     }
     buf = buf || new Buffer(_encodingLength(value))
-    encode.bytes = _encode(value, buf)
+    encode.bytes = _encode(value, buf.slice(offset || 0))
     if (length != null) encode.bytes = length
     return buf
   }
@@ -173,7 +171,9 @@ exports.fixedString = length => codec(
 
 exports.Int64LE = codec(
   function encode (bn, buf) {
-    bn.toBuffer().copy(buf.slice(0, 8))
+    buf = buf.slice(0, 8)
+    buf.fill(0)
+    reverse(bn.toBuffer()).copy(buf)
   },
   function decode (buf, d) {
     return new BN(reverse(buf.slice(0, 8)).toString('hex'), 'hex')
@@ -223,11 +223,9 @@ exports.vararray = (lenType, itemType) => codec(
     }
     lenType.encode(array.length, buf)
     var bytes = lenType.encode.bytes
-    buf = buf.slice(bytes)
     for (let item of array) {
-      itemType.encode(item, buf)
+      itemType.encode(item, buf, bytes)
       bytes += itemType.encode.bytes
-      buf = buf.slice(itemType.encode.bytes)
     }
     return bytes
   },
