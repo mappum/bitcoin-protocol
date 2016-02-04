@@ -35,6 +35,7 @@
     "babel-cli": "^6.4.5",
     "babel-preset-es2015": "^6.3.13",
     "standard": "^5.4.1",
+    "stream-buffers": "^3.0.0",
     "tap": "^5.4.2"
   }
 }
