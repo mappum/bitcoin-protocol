@@ -4,7 +4,7 @@
   "description": "Bitcoin network protocol streams",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1",
+    "test": "standard && tap --cov test/*.js",
     "build": "rm -rf lib && babel --presets es2015 src -d lib",
     "source": "rm -rf lib && ln -s src lib",
     "prepublish": "npm run build",
