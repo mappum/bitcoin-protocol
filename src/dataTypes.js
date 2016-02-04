@@ -62,6 +62,7 @@ const buffer = exports.buffer = length => codec(
   },
   null, length
 )
+const buffer32 = buffer(32)
 
 const varint = exports.varint = codec(
   function encode (n, buf) {
@@ -266,4 +267,14 @@ exports.alertPayload = struct({
   comment: varstring,
   statusBar: varstring,
   reserved: varstring
+})
+
+exports.header = struct({
+  version: struct.Int32LE,
+  prevBlock: buffer32,
+  merkleRoot: buffer32,
+  timestamp: struct.UInt32LE,
+  bits: struct.UInt32LE,
+  nonce: struct.UInt32LE,
+  nTransactions: varint
 })
