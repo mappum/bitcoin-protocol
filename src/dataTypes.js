@@ -2,8 +2,6 @@
 
 const struct = require('varstruct')
 const ip = require('ip')
-const BN = require('bn.js')
-const reverse = require('buffer-reverse')
 
 const MAX_NUMBER = 0x1fffffffffffff
 const IPV4_PREFIX = new Buffer('00000000000000000000ffff', 'hex')
@@ -167,18 +165,6 @@ exports.fixedString = length => codec(
     return buf.slice(0, firstZero).toString('utf8')
   },
   null, length
-)
-
-exports.Int64LE = codec(
-  function encode (bn, buf) {
-    buf = buf.slice(0, 8)
-    buf.fill(0)
-    reverse(bn.toBuffer()).copy(buf)
-  },
-  function decode (buf, d) {
-    return new BN(reverse(buf.slice(0, 8)).toString('hex'), 'hex')
-  },
-  null, 8
 )
 
 const ipAddress = exports.ipAddress = codec(

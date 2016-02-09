@@ -23,8 +23,6 @@
   "license": "MIT",
   "dependencies": {
     "bl": "^1.0.1",
-    "bn.js": "^4.10.0",
-    "buffer-reverse": "^1.0.0",
     "create-hash": "^1.1.2",
     "from2": "^2.1.1",
     "ip": "^1.1.0",
