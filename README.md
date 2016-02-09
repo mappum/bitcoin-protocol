@@ -159,25 +159,23 @@ The formats for the objects used as message payloads for the various commands ar
 ```js
 {
   version: Number,
-  in: [
+  ins: [
     {
-      prevOut: {
-        txid: Buffer, // 32 bytes
-        index: Number
-      },
-      scriptSig: Buffer, // varying length
+      hash: Buffer, // 32 bytes
+      index: Number,
+      script: Buffer, // varying length
       sequence: Number
     },
     ...
   ],
-  out: [
+  outs: [
     {
       value: BN, // from 'bn.js' package
-      scriptPubKey: Buffer // varying length
+      script: Buffer // varying length
     },
     ...
   ],
-  lockTime: Number
+  locktime: Number
 }
 ```
 
@@ -185,13 +183,14 @@ The formats for the objects used as message payloads for the various commands ar
 ```js
 {
   version: Number,
-  prevBlock: Buffer, // 32 bytes
+  prevHash: Buffer, // 32 bytes
   merkleRoot: Buffer, // 32 bytes
   timestamp: Number,
   bits: Number,
   nonce: Number,
   transactions: [
-    // same format as 'tx' message
+    {}, // same format as 'tx' message
+    ...
   ]
 }
 ```
@@ -201,7 +200,7 @@ The formats for the objects used as message payloads for the various commands ar
 [
   {
     version: Number,
-    prevBlock: Buffer, // 32 bytes
+    prevHash: Buffer, // 32 bytes
     merkleRoot: Buffer, // 32 bytes
     timestamp: Number,
     bits: Number,
@@ -251,7 +250,7 @@ The formats for the objects used as message payloads for the various commands ar
 {
   header: {
     version: Number,
-    prevBlock: Buffer, // 32 bytes
+    prevHash: Buffer, // 32 bytes
     merkleRoot: Buffer, // 32 bytes
     timestamp: Number,
     bits: Number,
