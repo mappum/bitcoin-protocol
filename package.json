@@ -1,6 +1,6 @@
 {
   "name": "bitcoin-protocol",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "description": "Bitcoin network protocol streams",
   "main": "index.js",
   "scripts": {
