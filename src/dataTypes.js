@@ -270,10 +270,9 @@ exports.alertPayload = struct({
 
 exports.header = struct({
   version: struct.Int32LE,
-  prevBlock: buffer32,
+  prevHash: buffer32,
   merkleRoot: buffer32,
   timestamp: struct.UInt32LE,
   bits: struct.UInt32LE,
-  nonce: struct.UInt32LE,
-  nTransactions: varint
+  nonce: struct.UInt32LE
 })

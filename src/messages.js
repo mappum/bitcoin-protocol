@@ -40,24 +40,22 @@ exports.getheaders = struct({
 
 exports.tx = struct({
   version: struct.Int32LE,
-  in: types.vararray(types.varint, struct({
-    prevOut: struct({
-      txid: buffer32,
-      index: struct.UInt32LE
-    }),
-    scriptSig: struct.varbuf(types.varint),
+  ins: types.vararray(types.varint, struct({
+    hash: buffer32,
+    index: struct.UInt32LE,
+    script: struct.varbuf(types.varint),
     sequence: struct.UInt32LE
   })),
-  out: types.vararray(types.varint, struct({
-    value: types.Int64LE,
-    scriptPubKey: struct.varbuf(types.varint)
+  outs: types.vararray(types.varint, struct({
+    valueBuffer: buffer8,
+    script: struct.varbuf(types.varint)
   })),
-  lockTime: struct.UInt32LE
+  locktime: struct.UInt32LE
 })
 
 exports.block = struct({
   version: struct.Int32LE,
-  prevBlock: buffer32,
+  prevHash: buffer32,
   merkleRoot: buffer32,
   timestamp: struct.UInt32LE,
   bits: struct.UInt32LE,
