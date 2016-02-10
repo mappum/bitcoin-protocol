@@ -92,6 +92,7 @@ function createEncodeStream (opts) {
       return cb(err)
     }
 
+    payload = payload.slice(0, command.encode.bytes)
     chunk.length = command.encode.bytes
     chunk.checksum = getChecksum(payload)
     chunk.magic = chunk.magic == null ? opts.magic : chunk.magic
