@@ -122,14 +122,16 @@ const varint = exports.varint = codec(
 const varstring =
 exports.varstring = codec(
   function encode (s, buf) {
-    if (Buffer.byteLength(s) > buf.length) {
+    var length = Buffer.byteLength(s)
+    if (length > buf.length) {
       throw new Error('String value is larger than Buffer')
     }
     if (s.length === 0) {
       buf.writeUInt8(0, 0)
       return 1
     }
-    return buf.write(s)
+    varint.encode(length, buf)
+    return buf.write(s, varint.encode.bytes)
   },
 
   function decode (buf, d) {
