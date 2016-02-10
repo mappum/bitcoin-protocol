@@ -1,7 +1,7 @@
 'use strict'
 
 const BufferList = require('bl')
-const through = require('through2')
+const through = require('through2').obj
 const struct = require('varstruct')
 const createHash = require('create-hash')
 const types = require('./dataTypes.js')
@@ -25,7 +25,7 @@ function createDecodeStream (opts) {
   opts = opts || {}
   var bl = new BufferList()
   var message
-  return through.obj(function (chunk, enc, cb) {
+  return through(function (chunk, enc, cb) {
     try {
       bl.append(chunk)
       while (bl.length > 0) {
@@ -79,7 +79,7 @@ function createDecodeStream (opts) {
 
 function createEncodeStream (opts) {
   opts = opts || {}
-  return through.obj(function (chunk, enc, cb) {
+  return through(function (chunk, enc, cb) {
     const command = messages[chunk.command]
     if (!command) {
       return cb(new Error(`Unrecognized command: "${chunk.command}"`))
@@ -94,7 +94,10 @@ function createEncodeStream (opts) {
 
     chunk.length = command.encode.bytes
     chunk.checksum = getChecksum(payload)
-    chunk.magic = chunk.magic || opts.magic
+    chunk.magic = chunk.magic == null ? opts.magic : chunk.magic
+    if (chunk.magic == null) {
+      throw new Error('Must specify network magic value in stream options or in message object')
+    }
     var header
     try {
       header = messageHeader.encode(chunk)

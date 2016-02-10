@@ -151,7 +151,7 @@ exports.fixedString = length => codec(
       throw new Error('String length is out of bounds')
     }
     const bytes = buf.write(s)
-    buf.fill(0, bytes)
+    buf.fill(0, bytes, length)
   },
 
   function decode (buf, d) {
