@@ -63,7 +63,15 @@ exports.block = struct({
   transactions: types.vararray(types.varint, exports.tx)
 })
 
-exports.headers = types.vararray(types.varint, types.header)
+exports.headers = types.vararray(types.varint, struct({
+  version: struct.Int32LE,
+  prevHash: buffer32,
+  merkleRoot: buffer32,
+  timestamp: struct.UInt32LE,
+  bits: struct.UInt32LE,
+  nonce: struct.UInt32LE,
+  numTransactions: types.varint
+}))
 
 exports.ping =
 exports.pong = struct({ nonce: buffer8 })
@@ -115,7 +123,14 @@ exports.filteradd = struct({
 })
 
 exports.merkleblock = struct({
-  header: types.header,
+  header: struct({
+    version: struct.Int32LE,
+    prevHash: buffer32,
+    merkleRoot: buffer32,
+    timestamp: struct.UInt32LE,
+    bits: struct.UInt32LE,
+    nonce: struct.UInt32LE
+  }),
   hashes: types.vararray(types.varint, buffer32),
   flags: struct.varbuf(types.varint)
 })
