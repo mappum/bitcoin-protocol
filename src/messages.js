@@ -23,7 +23,8 @@ exports.version = struct({
 exports.verack =
 exports.getaddr =
 exports.mempool =
-exports.filterclear = struct({})
+exports.filterclear =
+exports.sendheaders = struct({})
 
 exports.addr = types.vararray(types.varint, peerAddress)
 
