@@ -79,7 +79,7 @@ const varint = exports.varint = codec(
     }
     if (n <= MAX_NUMBER) {
       buf.writeUInt8(0xff, 0)
-      buf.writeInt32LE(n & -1, 1)
+      buf.writeUInt32LE(n | 0, 1)
       buf.writeUInt32LE(Math.floor(n / 0x100000000), 5)
       return 9
     }
@@ -104,7 +104,7 @@ const varint = exports.varint = codec(
       d.bytes = 9
       const bottom = buf.readUInt32LE(1)
       const top = buf.readUInt32LE(5)
-      const n = top * 0xffffffff + bottom
+      const n = top * 0x100000000 + bottom
       if (n > MAX_NUMBER) throw new Error('Value exceeds maximum Javascript integer (53 bits)')
       return n
     }
