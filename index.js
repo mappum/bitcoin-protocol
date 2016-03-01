@@ -6,5 +6,6 @@ module.exports = {
   createEncodeStream: stream.createEncodeStream,
   encode: stream.createEncodeStream,
   dataTypes: require('./lib/dataTypes.js'),
-  messages: require('./lib/messages.js')
+  messages: require('./lib/messages.js'),
+  constants: require('./lib/constants.js')
 }
