@@ -189,18 +189,19 @@ const ipAddress = exports.ipAddress = codec(
 )
 
 exports.peerAddress = noTime => {
-  const addr = {}
-  if (!noTime) addr.time = struct.UInt32LE
-  addr.services = buffer(8)
-  addr.address = ipAddress
-  addr.port = struct.UInt16BE
+  const addr = [
+    { name: 'services', type: buffer(8) },
+    { name: 'address', type: ipAddress },
+    { name: 'port', type: struct.UInt16BE }
+  ]
+  if (!noTime) addr.unshift({ name: 'time', type: struct.UInt32LE })
   return struct(addr)
 }
 
-exports.inventoryVector = struct({
-  type: struct.UInt32LE,
-  hash: buffer(32)
-})
+exports.inventoryVector = struct([
+  { name: 'type', type: struct.UInt32LE },
+  { name: 'hash', type: buffer(32) }
+])
 
 const vararray =
 exports.vararray = (lenType, itemType) => codec(
@@ -239,18 +240,18 @@ exports.vararray = (lenType, itemType) => codec(
   }
 )
 
-exports.alertPayload = struct({
-  version: struct.Int32LE,
-  relayUntil: struct.UInt64LE,
-  expiration: struct.UInt64LE,
-  id: struct.Int32LE,
-  cancel: struct.Int32LE,
-  cancelSet: vararray(varint, struct.Int32LE),
-  minVer: struct.Int32LE,
-  maxVer: struct.Int32LE,
-  subVerSet: vararray(varint, varstring),
-  priority: struct.Int32LE,
-  comment: varstring,
-  statusBar: varstring,
-  reserved: varstring
-})
+exports.alertPayload = struct([
+  { name: 'version', type: struct.Int32LE },
+  { name: 'relayUntil', type: struct.UInt64LE },
+  { name: 'expiration', type: struct.UInt64LE },
+  { name: 'id', type: struct.Int32LE },
+  { name: 'cancel', type: struct.Int32LE },
+  { name: 'cancelSet', type: vararray(varint, struct.Int32LE) },
+  { name: 'minVer', type: struct.Int32LE },
+  { name: 'maxVer', type: struct.Int32LE },
+  { name: 'subVerSet', type: vararray(varint, varstring) },
+  { name: 'priority', type: struct.Int32LE },
+  { name: 'comment', type: varstring },
+  { name: 'statusBar', type: varstring },
+  { name: 'reserved', type: varstring }
+])

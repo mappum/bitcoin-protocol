@@ -8,23 +8,23 @@ const buffer8 = types.buffer(8)
 
 const NULL_BUFFER = new Buffer(0)
 
-exports.version = struct({
-  version: struct.UInt32LE,
-  services: buffer8,
-  timestamp: struct.UInt64LE,
-  receiverAddress: versionPeerAddress,
-  senderAddress: versionPeerAddress,
-  nonce: buffer8,
-  userAgent: types.varstring,
-  startHeight: struct.Int32LE,
-  relay: types.boolean
-})
+exports.version = struct([
+  { name: 'version', type: struct.UInt32LE },
+  { name: 'services', type: buffer8 },
+  { name: 'timestamp', type: struct.UInt64LE },
+  { name: 'receiverAddress', type: versionPeerAddress },
+  { name: 'senderAddress', type: versionPeerAddress },
+  { name: 'nonce', type: buffer8 },
+  { name: 'userAgent', type: types.varstring },
+  { name: 'startHeight', type: struct.Int32LE },
+  { name: 'relay', type: types.boolean }
+])
 
 exports.verack =
 exports.getaddr =
 exports.mempool =
 exports.filterclear =
-exports.sendheaders = struct({})
+exports.sendheaders = struct([])
 
 exports.addr = types.vararray(types.varint, peerAddress)
 
@@ -33,55 +33,55 @@ exports.getdata =
 exports.notfound = types.vararray(types.varint, types.inventoryVector)
 
 exports.getblocks =
-exports.getheaders = struct({
-  version: struct.UInt32,
-  locator: types.vararray(types.varint, buffer32),
-  hashStop: buffer32
-})
+exports.getheaders = struct([
+  { name: 'version', type: struct.UInt32BE },
+  { name: 'locator', type: types.vararray(types.varint, buffer32) },
+  { name: 'hashStop', type: buffer32 }
+])
 
-exports.tx = struct({
-  version: struct.Int32LE,
-  ins: types.vararray(types.varint, struct({
-    hash: buffer32,
-    index: struct.UInt32LE,
-    script: struct.varbuf(types.varint),
-    sequence: struct.UInt32LE
-  })),
-  outs: types.vararray(types.varint, struct({
-    valueBuffer: buffer8,
-    script: struct.varbuf(types.varint)
-  })),
-  locktime: struct.UInt32LE
-})
+exports.tx = struct([
+  { name: 'version', type: struct.Int32LE },
+  { name: 'ins', type: types.vararray(types.varint, struct([
+    { name: 'hash', type: buffer32 },
+    { name: 'index', type: struct.UInt32LE },
+    { name: 'script', type: struct.VarBuffer(types.varint) },
+    { name: 'sequence', type: struct.UInt32LE }
+  ])) },
+  { name: 'outs', type: types.vararray(types.varint, struct([
+    { name: 'valueBuffer', type: buffer8 },
+    { name: 'script', type: struct.VarBuffer(types.varint) }
+  ])) },
+  { name: 'locktime', type: struct.UInt32LE }
+])
 
-exports.block = struct({
-  version: struct.Int32LE,
-  prevHash: buffer32,
-  merkleRoot: buffer32,
-  timestamp: struct.UInt32LE,
-  bits: struct.UInt32LE,
-  nonce: struct.UInt32LE,
-  transactions: types.vararray(types.varint, exports.tx)
-})
+exports.block = struct([
+  { name: 'version', type: struct.Int32LE },
+  { name: 'prevHash', type: buffer32 },
+  { name: 'merkleRoot', type: buffer32 },
+  { name: 'timestamp', type: struct.UInt32LE },
+  { name: 'bits', type: struct.UInt32LE },
+  { name: 'nonce', type: struct.UInt32LE },
+  { name: 'transactions', type: types.vararray(types.varint, exports.tx) }
+])
 
-exports.headers = types.vararray(types.varint, struct({
-  version: struct.Int32LE,
-  prevHash: buffer32,
-  merkleRoot: buffer32,
-  timestamp: struct.UInt32LE,
-  bits: struct.UInt32LE,
-  nonce: struct.UInt32LE,
-  numTransactions: types.varint
-}))
+exports.headers = types.vararray(types.varint, struct([
+  { name: 'version', type: struct.Int32LE },
+  { name: 'prevHash', type: buffer32 },
+  { name: 'merkleRoot', type: buffer32 },
+  { name: 'timestamp', type: struct.UInt32LE },
+  { name: 'bits', type: struct.UInt32LE },
+  { name: 'nonce', type: struct.UInt32LE },
+  { name: 'numTransactions', type: types.varint }
+]))
 
 exports.ping =
-exports.pong = struct({ nonce: buffer8 })
+exports.pong = struct([ { name: 'nonce', type: buffer8 } ])
 
-const rejectStruct = struct({
-  message: types.varstring,
-  ccode: struct.UInt8,
-  reason: types.varstring
-})
+const rejectStruct = struct([
+  { name: 'message', type: types.varstring },
+  { name: 'ccode', type: struct.UInt8 },
+  { name: 'reason', type: types.varstring }
+])
 exports.reject = message => types.codec(
   function encode (value, buf) {
     rejectStruct.encode(value, buf)
@@ -112,31 +112,31 @@ const reject = exports.reject()
 exports.reject.encode = reject.encode
 exports.reject.encodingLength = reject.encodingLength
 
-exports.filterload = struct({
-  data: struct.varbuf(types.varint),
-  nHashFuncs: struct.UInt32LE,
-  nTweak: struct.UInt32LE,
-  nFlags: struct.UInt8
-})
+exports.filterload = struct([
+  { name: 'data', type: struct.VarBuffer(types.varint) },
+  { name: 'nHashFuncs', type: struct.UInt32LE },
+  { name: 'nTweak', type: struct.UInt32LE },
+  { name: 'nFlags', type: struct.UInt8 }
+])
 
-exports.filteradd = struct({
-  data: struct.varbuf(types.varint)
-})
+exports.filteradd = struct([
+  { name: 'data', type: struct.VarBuffer(types.varint) }
+])
 
-exports.merkleblock = struct({
-  header: struct({
-    version: struct.Int32LE,
-    prevHash: buffer32,
-    merkleRoot: buffer32,
-    timestamp: struct.UInt32LE,
-    bits: struct.UInt32LE,
-    nonce: struct.UInt32LE
-  }),
-  hashes: types.vararray(types.varint, buffer32),
-  flags: struct.varbuf(types.varint)
-})
+exports.merkleblock = struct([
+  { name: 'header', type: struct([
+    { name: 'version', type: struct.Int32LE },
+    { name: 'prevHash', type: buffer32 },
+    { name: 'merkleRoot', type: buffer32 },
+    { name: 'timestamp', type: struct.UInt32LE },
+    { name: 'bits', type: struct.UInt32LE },
+    { name: 'nonce', type: struct.UInt32LE }
+  ]) },
+  { name: 'hashes', type: types.vararray(types.varint, buffer32) },
+  { name: 'flags', type: struct.VarBuffer(types.varint) }
+])
 
-exports.alert = struct({
-  payload: struct.varbuf(types.varint),
-  signature: struct.varbuf(types.varint)
-})
+exports.alert = struct([
+  { name: 'payload', type: struct.VarBuffer(types.varint) },
+  { name: 'signature', type: struct.VarBuffer(types.varint) }
+])

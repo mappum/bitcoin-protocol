@@ -14,11 +14,18 @@ function getChecksum (data) {
     .slice(0, 4)
 }
 
-const messageHeader = struct({
-  magic: struct.UInt32LE,
-  command: types.fixedString(12),
-  length: struct.UInt32LE,
-  checksum: types.buffer(4)
+const messageHeader = struct([
+  { name: 'magic', type: struct.UInt32LE },
+  { name: 'command', type: types.fixedString(12) },
+  { name: 'length', type: struct.UInt32LE },
+  { name: 'checksum', type: types.buffer(4) }
+])
+
+const HEADER_LENGTH = messageHeader.encodingLength({
+  magic: 0,
+  command: '',
+  length: 0,
+  checksum: new Buffer('01234567', 'hex')
 })
 
 function createDecodeStream (opts) {
@@ -29,9 +36,9 @@ function createDecodeStream (opts) {
     bl.append(chunk)
     while (bl.length > 0) {
       if (!message) {
-        if (messageHeader.length > bl.length) break
+        if (HEADER_LENGTH > bl.length) break
         try {
-          message = messageHeader.decode(bl.slice(0, messageHeader.length))
+          message = messageHeader.decode(bl.slice(0, HEADER_LENGTH))
         } catch (err) {
           return cb(err)
         }
