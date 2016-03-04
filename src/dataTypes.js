@@ -2,8 +2,8 @@
 
 const struct = require('varstruct')
 const ip = require('ip')
+const varint = require('varuint-bitcoin')
 
-const MAX_NUMBER = 0x1fffffffffffff
 const IPV4_PREFIX = new Buffer('00000000000000000000ffff', 'hex')
 
 const codec =
@@ -58,64 +58,6 @@ const buffer = exports.buffer = length => codec(
     return buf.slice(0, length)
   },
   null, length
-)
-
-const varint = exports.varint = codec(
-  function encode (n, buf) {
-    if (n % 1) throw new Error('Varint value must be an integer')
-    if (n < 0xfd) {
-      buf.writeUInt8(n, 0)
-      return 1
-    }
-    if (n <= 0xffff) {
-      buf.writeUInt8(0xfd, 0)
-      buf.writeUInt16LE(n, 1)
-      return 3
-    }
-    if (n <= 0xffffffff) {
-      buf.writeUInt8(0xfe, 0)
-      buf.writeUInt32LE(n, 1)
-      return 5
-    }
-    if (n <= MAX_NUMBER) {
-      buf.writeUInt8(0xff, 0)
-      buf.writeUInt32LE(n | 0, 1)
-      buf.writeUInt32LE(Math.floor(n / 0x100000000), 5)
-      return 9
-    }
-    throw new Error('Value exceeds maximum Javascript integer (53 bits)')
-  },
-
-  function decode (buf, d) {
-    const first = buf.readUInt8(0)
-    if (first < 0xfd) {
-      d.bytes = 1
-      return first
-    }
-    if (first === 0xfd) {
-      d.bytes = 3
-      return buf.readUInt16LE(1)
-    }
-    if (first === 0xfe) {
-      d.bytes = 5
-      return buf.readUInt32LE(1)
-    }
-    if (first === 0xff) {
-      d.bytes = 9
-      const bottom = buf.readUInt32LE(1)
-      const top = buf.readUInt32LE(5)
-      const n = top * 0x100000000 + bottom
-      if (n > MAX_NUMBER) throw new Error('Value exceeds maximum Javascript integer (53 bits)')
-      return n
-    }
-  },
-
-  function encodingLength (n) {
-    if (n < 0xfd) return 1
-    if (n <= 0xffff) return 3
-    if (n <= 0xffffffff) return 5
-    return 9
-  }
 )
 
 const varstring =
