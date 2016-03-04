@@ -98,7 +98,7 @@ function createEncodeStream (opts) {
 
     var payload
     try {
-      payload = command.encode(chunk.payload)
+      payload = command.encode(chunk.payload || {})
     } catch (err) {
       return cb(err)
     }
