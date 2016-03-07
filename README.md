@@ -115,7 +115,7 @@ The formats for the objects used as message payloads for the various commands ar
 }
 ```
 
-#### `verack`, `getaddr`, `mempool`, `filterclear`
+#### `verack`, `getaddr`, `mempool`, `filterclear`, `sendheaders`
 ```js
 // no payload needed
 ```
