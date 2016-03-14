@@ -43,5 +43,16 @@
     "stream-buffers": "^3.0.0",
     "tap": "^5.4.2",
     "tmp": "0.0.28"
-  }
+  },
+  "directories": {
+    "test": "test"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/mappum/bitcoin-protocol.git"
+  },
+  "bugs": {
+    "url": "https://github.com/mappum/bitcoin-protocol/issues"
+  },
+  "homepage": "https://github.com/mappum/bitcoin-protocol#readme"
 }
