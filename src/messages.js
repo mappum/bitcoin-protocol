@@ -106,6 +106,7 @@ module.exports = {
       { name: 'bits', type: struct.UInt32LE },
       { name: 'nonce', type: struct.UInt32LE }
     ]) },
+    { name: 'numTransactions', type: struct.UInt32LE },
     { name: 'hashes', type: struct.VarArray(varint, struct.Buffer(32)) },
     { name: 'flags', type: struct.VarBuffer(varint) }
   ]),
