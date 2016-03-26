@@ -128,7 +128,7 @@ module.exports = {
     { name: 'data', type: struct.VarBuffer(varint) }
   ]),
   filterload: struct([
-    { name: 'data', type: struct.VarBuffer(varint) },
+    { name: 'data', type: struct.VarArray(varint, struct.UInt8) },
     { name: 'nHashFuncs', type: struct.UInt32LE },
     { name: 'nTweak', type: struct.UInt32LE },
     { name: 'nFlags', type: struct.UInt8 }
