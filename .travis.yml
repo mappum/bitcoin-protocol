@@ -3,14 +3,17 @@ notifications:
 sudo: false
 language: node_js
 node_js:
+  - "0.10"
+  - "0.11"
+  - "0.12"
   - "4"
   - "5"
 before_script:
-  - wget https://bitcoin.org/bin/bitcoin-core-0.11.2/bitcoin-0.11.2-linux64.tar.gz
-  - tar -xf bitcoin-0.11.2-linux64.tar.gz
+  - wget https://bitcoin.org/bin/bitcoin-core-0.12.0/bitcoin-0.12.0-linux64.tar.gz
+  - tar -xf bitcoin-0.12.0-linux64.tar.gz
 env:
   global:
-    - PATH=./bitcoin-0.11.2/bin:$PATH
+    - PATH=./bitcoin-0.12.0/bin:$PATH
   matrix:
     - TEST_SUITE=unit
     - TEST_SUITE=integration
