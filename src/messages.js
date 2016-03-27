@@ -4,8 +4,8 @@ const types = require('./dataTypes.js')
 
 const versionPeerAddress = types.peerAddress(true)
 const peerAddress = types.peerAddress(false)
-const buffer32 = types.buffer(32)
-const buffer8 = types.buffer(8)
+const buffer32 = struct.Buffer(32)
+const buffer8 = struct.Buffer(8)
 
 const NULL_BUFFER = new Buffer(0)
 
@@ -16,7 +16,7 @@ exports.version = struct([
   { name: 'receiverAddress', type: versionPeerAddress },
   { name: 'senderAddress', type: versionPeerAddress },
   { name: 'nonce', type: buffer8 },
-  { name: 'userAgent', type: types.varstring },
+  { name: 'userAgent', type: struct.VarString(varint, 'utf8') },
   { name: 'startHeight', type: struct.Int32LE },
   { name: 'relay', type: types.boolean }
 ])
@@ -27,28 +27,28 @@ exports.mempool =
 exports.filterclear =
 exports.sendheaders = struct([])
 
-exports.addr = types.vararray(varint, peerAddress)
+exports.addr = struct.VarArray(varint, peerAddress)
 
 exports.inv =
 exports.getdata =
-exports.notfound = types.vararray(varint, types.inventoryVector)
+exports.notfound = struct.VarArray(varint, types.inventoryVector)
 
 exports.getblocks =
 exports.getheaders = struct([
   { name: 'version', type: struct.UInt32BE },
-  { name: 'locator', type: types.vararray(varint, buffer32) },
+  { name: 'locator', type: struct.VarArray(varint, buffer32) },
   { name: 'hashStop', type: buffer32 }
 ])
 
 exports.tx = struct([
   { name: 'version', type: struct.Int32LE },
-  { name: 'ins', type: types.vararray(varint, struct([
+  { name: 'ins', type: struct.VarArray(varint, struct([
     { name: 'hash', type: buffer32 },
     { name: 'index', type: struct.UInt32LE },
     { name: 'script', type: struct.VarBuffer(varint) },
     { name: 'sequence', type: struct.UInt32LE }
   ])) },
-  { name: 'outs', type: types.vararray(varint, struct([
+  { name: 'outs', type: struct.VarArray(varint, struct([
     { name: 'valueBuffer', type: buffer8 },
     { name: 'script', type: struct.VarBuffer(varint) }
   ])) },
@@ -62,10 +62,10 @@ exports.block = struct([
   { name: 'timestamp', type: struct.UInt32LE },
   { name: 'bits', type: struct.UInt32LE },
   { name: 'nonce', type: struct.UInt32LE },
-  { name: 'transactions', type: types.vararray(varint, exports.tx) }
+  { name: 'transactions', type: struct.VarArray(varint, exports.tx) }
 ])
 
-exports.headers = types.vararray(varint, struct([
+exports.headers = struct.VarArray(varint, struct([
   { name: 'version', type: struct.Int32LE },
   { name: 'prevHash', type: buffer32 },
   { name: 'merkleRoot', type: buffer32 },
@@ -79,9 +79,9 @@ exports.ping =
 exports.pong = struct([ { name: 'nonce', type: buffer8 } ])
 
 const rejectStruct = struct([
-  { name: 'message', type: types.varstring },
+  { name: 'message', type: struct.VarString(varint, 'utf8') },
   { name: 'ccode', type: struct.UInt8 },
-  { name: 'reason', type: types.varstring }
+  { name: 'reason', type: struct.VarString(varint, 'utf8') }
 ])
 exports.reject = message => types.codec(
   function encode (value, buf) {
@@ -133,7 +133,7 @@ exports.merkleblock = struct([
     { name: 'bits', type: struct.UInt32LE },
     { name: 'nonce', type: struct.UInt32LE }
   ]) },
-  { name: 'hashes', type: types.vararray(varint, buffer32) },
+  { name: 'hashes', type: struct.VarArray(varint, buffer32) },
   { name: 'flags', type: struct.VarBuffer(varint) }
 ])
 
