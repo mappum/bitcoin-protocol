@@ -4,8 +4,8 @@ const BufferList = require('bl')
 const through = require('through2').obj
 const struct = require('varstruct')
 const createHash = require('create-hash')
-const types = require('./dataTypes.js')
-const messages = require('./messages.js')
+const types = require('./dataTypes')
+const messages = require('./messages')
 
 function getChecksum (data) {
   return createHash('sha256')

@@ -1,6 +1,6 @@
 const struct = require('varstruct')
 const varint = require('varuint-bitcoin')
-const types = require('./dataTypes.js')
+const types = require('./dataTypes')
 
 const versionPeerAddress = types.peerAddress(true)
 const peerAddress = types.peerAddress(false)
