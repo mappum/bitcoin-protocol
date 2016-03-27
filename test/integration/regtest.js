@@ -51,9 +51,6 @@ function validateBlock (t, found, wanted) {
 }
 
 test('Integration with bitcoin core in regtest mode', function (t) {
-  var bitcoindCommand = process.env.BITCOIND
-  if (!fs.existsSync(bitcoindCommand)) throw new Error('Please set path to bitcoind in BITCOIND')
-
   var bitcoindPort = 10000 + Math.floor(Math.random() * 40000)
   var bitcoindRPCPort = 10000 + Math.floor(Math.random() * 40000)
   var bitcoind
@@ -68,7 +65,7 @@ test('Integration with bitcoin core in regtest mode', function (t) {
       unsafeCleanup: true
     }).name
 
-    bitcoind = spawn(bitcoindCommand, [
+    bitcoind = spawn('bitcoind', [
       '-regtest',
       '-server',
       '-datadir=' + datadir,
@@ -166,7 +163,7 @@ test('Integration with bitcoin core in regtest mode', function (t) {
         if (waitVersionMsg) {
           t.equal(msg.command, 'version', 'correct command')
           t.ok(msg.payload.version >= versionMsg.payload.version, 'correct version')
-          t.same(msg.payload.services, versionMsg.payload.services, 'correct services')
+          // t.same(msg.payload.services, versionMsg.payload.services, 'correct services')
           t.ok(msg.payload.timestamp - versionMsg.payload.timestamp < 5, 'correct timestamp')
           // t.equal(msg.payload.startHeight, 0, 'correct startHeight')
           waitVersionMsg = false

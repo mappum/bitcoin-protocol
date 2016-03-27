@@ -10,7 +10,7 @@ before_script:
   - tar -xf bitcoin-0.11.2-linux64.tar.gz
 env:
   global:
-    - BITCOIND=./bitcoin-0.11.2/bin/bitcoind
+    - PATH=./bitcoin-0.11.2/bin:$PATH
   matrix:
     - TEST_SUITE=unit
     - TEST_SUITE=integration
