@@ -1,34 +1,32 @@
 'use strict'
-
-const BufferList = require('bl')
-const through = require('through2').obj
-const struct = require('varstruct')
-const createHash = require('create-hash')
-const types = require('./dataTypes')
-const messages = require('./messages')
+var BufferList = require('bl')
+var through = require('through2').obj
+var struct = require('varstruct')
+var createHash = require('create-hash')
+var bufferEquals = require('buffer-equals')
+var types = require('./types')
+var messages = require('./messages')
 
 function getChecksum (data) {
-  return createHash('sha256')
-    .update(createHash('sha256').update(data).digest())
-    .digest()
-    .slice(0, 4)
+  var tmp = createHash('sha256').update(data).digest()
+  return createHash('sha256').update(tmp).digest().slice(0, 4)
 }
 
-const messageHeader = struct([
+var messageHeader = struct([
   { name: 'magic', type: struct.UInt32LE },
-  { name: 'command', type: struct.String(12, 'utf8') },
+  { name: 'command', type: types.MessageCommand },
   { name: 'length', type: struct.UInt32LE },
   { name: 'checksum', type: struct.Buffer(4) }
 ])
 
-const HEADER_LENGTH = messageHeader.encodingLength({
+var HEADER_LENGTH = messageHeader.encodingLength({
   magic: 0,
   command: '',
   length: 0,
   checksum: new Buffer('01234567', 'hex')
 })
 
-function createDecodeStream (opts) {
+exports.createDecodeStream = function (opts) {
   opts = opts || {}
   var bl = new BufferList()
   var message
@@ -44,28 +42,28 @@ function createDecodeStream (opts) {
         }
 
         if (opts.magic && message.magic !== opts.magic) {
-          return cb(new Error(`Magic value in message ` +
-            `(${message.magic.toString(16)}) did not match expected ` +
-            `(${opts.magic.toString(16)})`))
+          return cb(new Error('Magic value in message ' +
+            '(' + message.magic.toString(16) + ') did not match expected ' +
+            '(' + opts.magic.toString(16) + ')'))
         }
 
         if (!messages[message.command]) {
-          return cb(new Error(`Unrecognized command: "${message.command}"`))
+          return cb(new Error('Unrecognized command: "' + message.command + '"'))
         }
 
         bl.consume(messageHeader.decode.bytes)
       }
       if (message.length > bl.length) break
 
-      let payload = bl.slice(0, message.length)
-      let checksum = getChecksum(payload)
-      if (checksum.compare(message.checksum) !== 0) {
-        return cb(new Error(`Invalid message checksum. ` +
-          `In header: "${message.checksum.toString('hex')}", ` +
-          `calculated: "${checksum.toString('hex')}"`))
+      var payload = bl.slice(0, message.length)
+      var checksum = getChecksum(payload)
+      if (!bufferEquals(checksum, message.checksum)) {
+        return cb(new Error('Invalid message checksum. ' +
+          'In header: "' + message.checksum.toString('hex') + '", ' +
+          'calculated: "' + checksum.toString('hex') + '"'))
       }
 
-      let command = messages[message.command]
+      var command = messages[message.command]
       if (typeof command === 'function') {
         command = command(message, payload)
       }
@@ -77,7 +75,7 @@ function createDecodeStream (opts) {
       }
       if (command.decode.bytes !== message.length) {
         return cb(new Error('Message length did not match header. ' +
-          `In header: ${message.length}, read: ${command.decode.bytes}`))
+          'In header: ' + message.length + ', read: ' + command.decode.bytes))
       }
 
       bl.consume(message.length)
@@ -88,12 +86,12 @@ function createDecodeStream (opts) {
   })
 }
 
-function createEncodeStream (opts) {
+exports.createEncodeStream = function (opts) {
   opts = opts || {}
   return through(function (chunk, enc, cb) {
-    const command = messages[chunk.command]
+    var command = messages[chunk.command]
     if (!command) {
-      return cb(new Error(`Unrecognized command: "${chunk.command}"`))
+      return cb(new Error('Unrecognized command: "' + chunk.command + '"'))
     }
 
     var payload
@@ -121,9 +119,4 @@ function createEncodeStream (opts) {
     this.push(payload)
     cb(null)
   })
-}
-
-module.exports = {
-  createDecodeStream,
-  createEncodeStream
 }

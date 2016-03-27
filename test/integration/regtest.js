@@ -1,8 +1,6 @@
 'use strict'
 var test = require('tape')
-var path = require('path')
 var tmp = require('tmp')
-var fs = require('fs')
 var spawn = require('child_process').spawn
 var RPCClient = require('bitcoin').Client
 var net = require('net')
@@ -12,6 +10,8 @@ var bufferReverse = require('buffer-reverse')
 var bp = require('../../')
 
 var REGTEST_MAGIC = require('coininfo').bitcoin.regtest.protocol.magic
+var ZERO_HASH256 = new Buffer(32)
+ZERO_HASH256.fill(0)
 
 function validateHeader (t, found, wanted) {
   t.same(found.version, wanted.version)
@@ -75,10 +75,10 @@ test('Integration with bitcoin core in regtest mode', function (t) {
       '-rpcpassword=pass',
       '-printtoconsole'
     ], { stdio: ['ignore', 'pipe', 'pipe'] })
-    bitcoind.on('error', (err) => { console.log('Bitcoind error: ' + err.stack) })
-    bitcoind.on('exit', (code, signal) => { console.log('Bitcoind exit: with code ' + code + ' on signal ' + signal) })
+    bitcoind.on('error', function (err) { console.log('Bitcoind error: ' + err.stack) })
+    bitcoind.on('exit', function (code, signal) { console.log('Bitcoind exit: with code ' + code + ' on signal ' + signal) })
     // bitcoind.stdout.on('data', (data) => { console.log(data.toString()) })
-    bitcoind.stderr.on('data', (data) => { process.stdout.write(data.toString()) })
+    bitcoind.stderr.on('data', function (data) { process.stdout.write(data.toString()) })
     process.on('exit', function () {
       if (bitcoind) bitcoind.kill('SIGTERM')
     })
@@ -283,8 +283,8 @@ test('Integration with bitcoin core in regtest mode', function (t) {
       command: 'getheaders',
       payload: {
         version: 70000,
-        locator: [new Buffer(32).fill(0)],
-        hashStop: new Buffer(32).fill(0)
+        locator: [new Buffer(ZERO_HASH256)],
+        hashStop: new Buffer(ZERO_HASH256)
       }
     })
   }))
@@ -334,8 +334,8 @@ test('Integration with bitcoin core in regtest mode', function (t) {
       command: 'getblocks',
       payload: {
         version: 70000,
-        locator: [new Buffer(32).fill(0)],
-        hashStop: new Buffer(32).fill(0)
+        locator: [new Buffer(ZERO_HASH256)],
+        hashStop: new Buffer(ZERO_HASH256)
       }
     })
   }))

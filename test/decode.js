@@ -5,7 +5,7 @@ var bp = require('../')
 test('decode stream', function (t) {
   t.test('decode version', function (t) {
     var stream = bp.createDecodeStream()
-    stream.once('data', message => {
+    stream.once('data', function (message) {
       t.true(message, 'got data')
       t.same(message.magic, 3652501241, 'correct magic')
       t.same(message.command, 'version', 'correct command')
@@ -31,7 +31,7 @@ test('decode stream', function (t) {
 
   t.test('decode verack', function (t) {
     var stream = bp.createDecodeStream()
-    stream.once('data', message => {
+    stream.once('data', function (message) {
       t.true(message, 'got data')
       t.same(message.magic, 3652501241, 'correct magic')
       t.same(message.command, 'verack', 'correct command')
@@ -43,7 +43,7 @@ test('decode stream', function (t) {
 
   t.test('decode addr', function (t) {
     var stream = bp.createDecodeStream()
-    stream.once('data', message => {
+    stream.once('data', function (message) {
       t.true(message, 'got data')
       t.same(message.magic, 3652501241, 'correct magic')
       t.same(message.command, 'addr', 'correct command')
@@ -61,7 +61,7 @@ test('decode stream', function (t) {
 
   t.test('decode tx', function (t) {
     var stream = bp.createDecodeStream()
-    stream.once('data', message => {
+    stream.once('data', function (message) {
       t.true(message, 'got data')
       t.same(message.magic, 3652501241, 'correct magic')
       t.same(message.command, 'tx', 'correct command')
@@ -87,7 +87,7 @@ test('decode stream', function (t) {
 
   t.test('invalid magic', function (t) {
     var stream = bp.createDecodeStream({ magic: 3652501241 })
-    stream.once('error', err => {
+    stream.once('error', function (err) {
       t.true(err, 'got error')
       t.same(err.message, 'Magic value in message (ffffffff) did not match expected (d9b4bef9)', 'correct error message')
       t.end()
@@ -97,7 +97,7 @@ test('decode stream', function (t) {
 
   t.test('invalid string padding', function (t) {
     var stream = bp.createDecodeStream()
-    stream.once('error', err => {
+    stream.once('error', function (err) {
       t.true(err, 'got error')
       t.same(err.message, 'Found a non-null byte after the first null byte in a null-padded string', 'correct error message')
       t.end()
@@ -107,7 +107,7 @@ test('decode stream', function (t) {
 
   t.test('invalid command', function (t) {
     var stream = bp.createDecodeStream()
-    stream.once('error', err => {
+    stream.once('error', function (err) {
       t.true(err, 'got error')
       t.same(err.message, 'Unrecognized command: "abcd"', 'correct error message')
       t.end()
@@ -117,7 +117,7 @@ test('decode stream', function (t) {
 
   t.test('invalid checksum', function (t) {
     var stream = bp.createDecodeStream()
-    stream.once('error', err => {
+    stream.once('error', function (err) {
       t.true(err, 'got error')
       t.same(err.message, 'Invalid message checksum. In header: "ffffffff", calculated: "137ad663"', 'correct error message')
       t.end()
@@ -128,7 +128,7 @@ test('decode stream', function (t) {
   t.test('buffering', function (t) {
     var stream = bp.createDecodeStream()
     var data = new Buffer('f9beb4d970696e67000000000000000008000000137ad663', 'hex')
-    stream.once('data', message => {
+    stream.once('data', function (message) {
       t.true(message, 'got data')
       t.same(message.magic, 3652501241, 'correct magic')
       t.same(message.command, 'ping', 'correct command')

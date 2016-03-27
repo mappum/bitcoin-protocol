@@ -1,4 +1,5 @@
 'use strict'
+// TODO: add segwit
 exports.inventory = {
   ERROR: 0,
   MSG_TX: 1,
