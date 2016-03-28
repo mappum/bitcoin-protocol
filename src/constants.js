@@ -1,11 +1,13 @@
-var inventory = {
+'use strict'
+// TODO: add segwit
+exports.inventory = {
   ERROR: 0,
   MSG_TX: 1,
   MSG_BLOCK: 2,
   MSG_FILTERED_BLOCK: 3
 }
 
-var reject = {
+exports.reject = {
   MALFORMED: 0x01,
   INVALID: 0x10,
   OBSOLETE: 0x11,
@@ -15,5 +17,3 @@ var reject = {
   INSUFFICIENTFEE: 0x42,
   CHECKPOINT: 0x43
 }
-
-module.exports = { inventory, reject }
