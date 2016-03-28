@@ -4,6 +4,10 @@ var varint = require('varuint-bitcoin')
 var ip = require('ip')
 var bufferEquals = require('buffer-equals')
 
+exports.Buffer8 = struct.Buffer(8)
+exports.Buffer32 = struct.Buffer(32)
+exports.VarBuffer = struct.VarBuffer(varint)
+
 exports.Boolean = (function () {
   function encode (value, buffer, offset) {
     return struct.UInt8.encode(+!!value, buffer, offset)
