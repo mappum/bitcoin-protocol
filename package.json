@@ -28,10 +28,10 @@
   },
   "scripts": {
     "coverage": "nyc npm run unit",
-    "integration": "tape test/integration/*.js",
+    "integration": "tape test/integration/*.js | faucet",
     "lint": "standard",
     "test": "npm run lint && npm run unit",
-    "unit": "tape test/*.js"
+    "unit": "tape test/*.js | faucet"
   },
   "dependencies": {
     "bl": "^1.0.1",
@@ -48,6 +48,7 @@
     "bitcoinjs-lib": "^2.2.0",
     "buffer-reverse": "^1.0.1",
     "coininfo": "^0.8.1",
+    "faucet": "0.0.1",
     "nyc": "^6.1.1",
     "standard": "^6.0.3",
     "stream-buffers": "^3.0.0",
