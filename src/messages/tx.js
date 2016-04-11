@@ -15,66 +15,55 @@ var outputs = struct.VarArray(varint, struct([
 ]))
 
 function encode (value, buffer, offset) {
+  function write (codec, value) {
+    codec.encode(value, buffer, offset + encode.bytes)
+    encode.bytes += codec.encode.bytes
+  }
+
   if (!buffer) buffer = new Buffer(encodingLength(value))
   if (!offset) offset = 0
   encode.bytes = 0
-  // version
-  struct.Int32LE.encode(value.version, buffer, offset + encode.bytes)
-  encode.bytes += struct.Int32LE.encode.bytes
+  write(struct.Int32LE, value.version) // version
   // marker and flags if segwit
   var isSegWit = value.flags && value.scriptWitnesses
   if (isSegWit) {
-    buffer[offset + encode.bytes] = 0x00
-    encode.bytes += 1
-    struct.UInt8.encode(value.flags, buffer, offset + encode.bytes)
-    encode.bytes += struct.UInt8.encode.bytes
+    write(struct.UInt8, 0x00)
+    write(struct.UInt8, value.flags)
   }
-  // inputs
-  inputs.encode(value.ins, buffer, offset + encode.bytes)
-  encode.bytes += inputs.encode.bytes
-  // outputs
-  outputs.encode(value.outs, buffer, offset + encode.bytes)
-  encode.bytes += outputs.encode.bytes
+  write(inputs, value.ins) // inputs
+  write(outputs, value.outs) // outputs
   // witnesses script if segwit
   if (isSegWit) {
-    types.VarBuffer.encode(value.scriptWitnesses, buffer, offset + encode.bytes)
-    encode.bytes += types.VarBuffer.encode.bytes
+    write(types.VarBuffer, value.scriptWitnesses)
   }
-  // locktime
-  struct.UInt32LE.encode(value.locktime, buffer, offset + encode.bytes)
-  encode.bytes += struct.UInt32LE.encode.bytes
+  write(struct.UInt32LE, value.locktime) // locktime
   return buffer
 }
 
 function decode (buffer, offset, end) {
+  function read (codec) {
+    var output = codec.decode(buffer, offset + decode.bytes, end)
+    decode.bytes += codec.decode.bytes
+    return output
+  }
   if (!offset) offset = 0
   if (!end) end = buffer.length
   var value = {}
   decode.bytes = 0
-  // version
-  value.version = struct.Int32LE.decode(buffer, offset + decode.bytes, end)
-  decode.bytes += struct.Int32LE.decode.bytes
+  value.version = read(struct.Int32LE) // version
   // check marker for segwit
   var isSegWit = buffer[offset + decode.bytes] === 0x00
   if (isSegWit) {
     decode.bytes += 1
-    value.flags = struct.UInt8.decode(buffer, offset + decode.bytes, end)
-    decode.bytes += struct.UInt8.decode.bytes
+    value.flags = read(struct.UInt8)
   }
-  // inputs
-  value.ins = inputs.decode(buffer, offset + decode.bytes, end)
-  decode.bytes += inputs.decode.bytes
-  // outputs
-  value.outs = outputs.decode(buffer, offset + decode.bytes, end)
-  decode.bytes += outputs.decode.bytes
+  value.ins = read(inputs) // inputs
+  value.outs = read(outputs) // outputs
   // witnesses script if segwit
   if (isSegWit) {
-    value.scriptWitnesses = types.VarBuffer.decode(buffer, offset + decode.bytes, end)
-    decode.bytes += types.VarBuffer.decode.bytes
+    value.scriptWitnesses = read(types.VarBuffer)
   }
-  // locktime
-  value.locktime = struct.UInt32LE.decode(buffer, offset + decode.bytes, end)
-  decode.bytes += struct.UInt32LE.decode.bytes
+  value.locktime = read(struct.UInt32LE) // locktime
   return value
 }
 
