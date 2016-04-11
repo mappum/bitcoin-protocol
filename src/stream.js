@@ -5,7 +5,7 @@ var struct = require('varstruct')
 var createHash = require('create-hash')
 var bufferEquals = require('buffer-equals')
 var types = require('./types')
-var messages = require('./messages')
+var bitcoinMessages = require('./messages')
 
 function getChecksum (data) {
   var tmp = createHash('sha256').update(data).digest()
@@ -28,6 +28,7 @@ var HEADER_LENGTH = messageHeader.encodingLength({
 
 exports.createDecodeStream = function (opts) {
   opts = opts || {}
+  var messages = opts.messages ? opts.messages : bitcoinMessages
   var bl = new BufferList()
   var message
   return through(function (chunk, enc, cb) {
@@ -88,6 +89,7 @@ exports.createDecodeStream = function (opts) {
 
 exports.createEncodeStream = function (opts) {
   opts = opts || {}
+  var messages = opts.messages ? opts.messages : bitcoinMessages
   return through(function (chunk, enc, cb) {
     var command = messages[chunk.command]
     if (!command) {
