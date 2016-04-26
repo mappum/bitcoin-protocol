@@ -7,5 +7,8 @@ module.exports = {
   encode: stream.createEncodeStream,
   types: require('./src/types'),
   messages: require('./src/messages'),
-  constants: require('./src/constants')
+  constants: require('./src/constants'),
+
+  struct: require('varstruct'),
+  varint: require('varuint-bitcoin')
 }

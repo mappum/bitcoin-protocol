@@ -5,7 +5,7 @@ var struct = require('varstruct')
 var createHash = require('create-hash')
 var bufferEquals = require('buffer-equals')
 var types = require('./types')
-var defaultMessages = require('./messages')
+var defaultMessages = require('./messages').defaultMessages
 
 function getChecksum (data) {
   var tmp = createHash('sha256').update(data).digest()

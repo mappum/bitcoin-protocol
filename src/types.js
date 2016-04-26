@@ -53,6 +53,12 @@ exports.IPAddress = (function () {
   return { encode: encode, decode: decode, encodingLength: function () { return 16 } }
 })()
 
+exports.PeerAddress = struct([
+  { name: 'services', type: exports.Buffer8 },
+  { name: 'address', type: exports.IPAddress },
+  { name: 'port', type: struct.UInt16BE }
+])
+
 exports.InventoryVector = struct([
   { name: 'type', type: struct.UInt32LE },
   { name: 'hash', type: struct.Buffer(32) }
@@ -97,3 +103,27 @@ exports.MessageCommand = (function () {
   encode.bytes = decode.bytes = 12
   return { encode: encode, decode: decode, encodingLength: function () { return 12 } }
 })()
+
+exports.Transaction = struct([
+  { name: 'version', type: struct.Int32LE },
+  { name: 'ins', type: struct.VarArray(varint, struct([
+    { name: 'hash', type: exports.Buffer32 },
+    { name: 'index', type: struct.UInt32LE },
+    { name: 'script', type: exports.VarBuffer },
+    { name: 'sequence', type: struct.UInt32LE }
+  ])) },
+  { name: 'outs', type: struct.VarArray(varint, struct([
+    { name: 'valueBuffer', type: exports.Buffer8 },
+    { name: 'script', type: exports.VarBuffer }
+  ])) },
+  { name: 'locktime', type: struct.UInt32LE }
+])
+
+exports.Header = struct([
+  { name: 'version', type: struct.Int32LE },
+  { name: 'prevHash', type: exports.Buffer32 },
+  { name: 'merkleRoot', type: exports.Buffer32 },
+  { name: 'timestamp', type: struct.UInt32LE },
+  { name: 'bits', type: struct.UInt32LE },
+  { name: 'nonce', type: struct.UInt32LE }
+])

@@ -1,6 +1,6 @@
 var struct = require('varstruct')
 var varint = require('varuint-bitcoin')
-var types = require('./types.js')
+var defaultTypes = require('./types.js')
 
 function createMessages (messages) {
   function extend (child) {
@@ -15,23 +15,12 @@ function createMessages (messages) {
   return extend
 }
 
-module.exports = createMessages((function () {
-  // TODO: add segwit
-  var tx = struct([
-    { name: 'version', type: struct.Int32LE },
-    { name: 'ins', type: struct.VarArray(varint, struct([
-      { name: 'hash', type: types.Buffer32 },
-      { name: 'index', type: struct.UInt32LE },
-      { name: 'script', type: types.VarBuffer },
-      { name: 'sequence', type: struct.UInt32LE }
-    ])) },
-    { name: 'outs', type: struct.VarArray(varint, struct([
-      { name: 'valueBuffer', type: types.Buffer8 },
-      { name: 'script', type: types.VarBuffer }
-    ])) },
-    { name: 'locktime', type: struct.UInt32LE }
-  ])
+function createStructs (overrideTypes) {
+  var types = {}
+  for (var k in defaultTypes) types[k] = defaultTypes[k]
+  for (k in overrideTypes) types[k] = overrideTypes[k]
 
+  // TODO: add segwit
   var reject = (function () {
     var baseStruct = struct([
       { name: 'message', type: struct.VarString(varint, 'ascii') },
@@ -81,13 +70,8 @@ module.exports = createMessages((function () {
   return {
     // Data Messages
     block: struct([
-      { name: 'version', type: struct.Int32LE },
-      { name: 'prevHash', type: types.Buffer32 },
-      { name: 'merkleRoot', type: types.Buffer32 },
-      { name: 'timestamp', type: struct.UInt32LE },
-      { name: 'bits', type: struct.UInt32LE },
-      { name: 'nonce', type: struct.UInt32LE },
-      { name: 'transactions', type: struct.VarArray(varint, tx) }
+      { name: 'header', type: types.Header },
+      { name: 'transactions', type: struct.VarArray(varint, types.Transaction) }
     ]),
     getblocks: struct([
       { name: 'version', type: struct.UInt32BE },
@@ -101,31 +85,19 @@ module.exports = createMessages((function () {
       { name: 'hashStop', type: types.Buffer32 }
     ]),
     headers: struct.VarArray(varint, struct([
-      { name: 'version', type: struct.Int32LE },
-      { name: 'prevHash', type: types.Buffer32 },
-      { name: 'merkleRoot', type: types.Buffer32 },
-      { name: 'timestamp', type: struct.UInt32LE },
-      { name: 'bits', type: struct.UInt32LE },
-      { name: 'nonce', type: struct.UInt32LE },
+      { name: 'header', type: types.Header },
       { name: 'numTransactions', type: varint }
     ])),
     inv: struct.VarArray(varint, types.InventoryVector),
     mempool: struct([]),
     merkleblock: struct([
-      { name: 'header', type: struct([
-        { name: 'version', type: struct.Int32LE },
-        { name: 'prevHash', type: types.Buffer32 },
-        { name: 'merkleRoot', type: types.Buffer32 },
-        { name: 'timestamp', type: struct.UInt32LE },
-        { name: 'bits', type: struct.UInt32LE },
-        { name: 'nonce', type: struct.UInt32LE }
-      ]) },
+      { name: 'header', type: types.Header },
       { name: 'numTransactions', type: struct.UInt32LE },
       { name: 'hashes', type: struct.VarArray(varint, types.Buffer32) },
       { name: 'flags', type: types.VarBuffer }
     ]),
     notfound: struct.VarArray(varint, types.InventoryVector),
-    tx: tx,
+    tx: types.Transaction,
 
     // Control Messages
     addr: struct.VarArray(varint, struct([
@@ -158,20 +130,16 @@ module.exports = createMessages((function () {
       { name: 'version', type: struct.UInt32LE },
       { name: 'services', type: types.Buffer8 },
       { name: 'timestamp', type: struct.UInt64LE },
-      { name: 'receiverAddress', type: struct([
-        { name: 'services', type: types.Buffer8 },
-        { name: 'address', type: types.IPAddress },
-        { name: 'port', type: struct.UInt16BE }
-      ]) },
-      { name: 'senderAddress', type: struct([
-        { name: 'services', type: types.Buffer8 },
-        { name: 'address', type: types.IPAddress },
-        { name: 'port', type: struct.UInt16BE }
-      ]) },
+      { name: 'receiverAddress', type: types.PeerAddress },
+      { name: 'senderAddress', type: types.PeerAddress },
       { name: 'nonce', type: types.Buffer8 },
       { name: 'userAgent', type: struct.VarString(varint, 'ascii') },
       { name: 'startHeight', type: struct.Int32LE },
       { name: 'relay', type: types.Boolean }
     ])
   }
-})())
+}
+
+exports.defaultMessages = createMessages(createStructs(defaultTypes))
+exports.createMessages = createMessages
+exports.createStructs = createStructs
