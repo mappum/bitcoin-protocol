@@ -67,7 +67,7 @@ function createStructs (overrideTypes) {
 
   // https://bitcoin.org/en/developer-reference#p2p-network
   // TODO: move to own files
-  return {
+  return createMessages({
     // Data Messages
     block: struct([
       { name: 'header', type: types.header },
@@ -137,9 +137,9 @@ function createStructs (overrideTypes) {
       { name: 'startHeight', type: struct.Int32LE },
       { name: 'relay', type: types.boolean }
     ])
-  }
+  })
 }
 
-exports.defaultMessages = createMessages(createStructs(defaultTypes))
+exports.defaultMessages = createStructs(defaultTypes)
 exports.createMessages = createMessages
 exports.createStructs = createStructs
