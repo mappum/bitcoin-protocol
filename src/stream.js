@@ -14,7 +14,7 @@ function getChecksum (data) {
 
 var messageHeader = struct([
   { name: 'magic', type: struct.UInt32LE },
-  { name: 'command', type: types.MessageCommand },
+  { name: 'command', type: types.messageCommand },
   { name: 'length', type: struct.UInt32LE },
   { name: 'checksum', type: struct.Buffer(4) }
 ])

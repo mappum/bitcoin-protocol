@@ -4,11 +4,11 @@ var varint = require('varuint-bitcoin')
 var ip = require('ip')
 var bufferEquals = require('buffer-equals')
 
-exports.Buffer8 = struct.Buffer(8)
-exports.Buffer32 = struct.Buffer(32)
-exports.VarBuffer = struct.VarBuffer(varint)
+exports.buffer8 = struct.Buffer(8)
+exports.buffer32 = struct.Buffer(32)
+exports.varBuffer = struct.VarBuffer(varint)
 
-exports.Boolean = (function () {
+exports.boolean = (function () {
   function encode (value, buffer, offset) {
     return struct.UInt8.encode(+!!value, buffer, offset)
   }
@@ -21,7 +21,7 @@ exports.Boolean = (function () {
   return { encode: encode, decode: decode, encodingLength: function () { return 1 } }
 })()
 
-exports.IPAddress = (function () {
+exports.ipAddress = (function () {
   var IPV4_PREFIX = new Buffer('00000000000000000000ffff', 'hex')
   function encode (value, buffer, offset) {
     if (!buffer) buffer = new Buffer(16)
@@ -53,18 +53,18 @@ exports.IPAddress = (function () {
   return { encode: encode, decode: decode, encodingLength: function () { return 16 } }
 })()
 
-exports.PeerAddress = struct([
-  { name: 'services', type: exports.Buffer8 },
-  { name: 'address', type: exports.IPAddress },
+exports.peerAddress = struct([
+  { name: 'services', type: exports.buffer8 },
+  { name: 'address', type: exports.ipAddress },
   { name: 'port', type: struct.UInt16BE }
 ])
 
-exports.InventoryVector = struct([
+exports.inventoryVector = struct([
   { name: 'type', type: struct.UInt32LE },
   { name: 'hash', type: struct.Buffer(32) }
 ])
 
-exports.AlertPayload = struct([
+exports.alertPayload = struct([
   { name: 'version', type: struct.Int32LE },
   { name: 'relayUntil', type: struct.UInt64LE },
   { name: 'expiration', type: struct.UInt64LE },
@@ -80,7 +80,7 @@ exports.AlertPayload = struct([
   { name: 'reserved', type: struct.VarString(varint, 'ascii') }
 ])
 
-exports.MessageCommand = (function () {
+exports.messageCommand = (function () {
   var buffer12 = struct.Buffer(12)
 
   function encode (value, buffer, offset) {
@@ -104,25 +104,25 @@ exports.MessageCommand = (function () {
   return { encode: encode, decode: decode, encodingLength: function () { return 12 } }
 })()
 
-exports.Transaction = struct([
+exports.transaction = struct([
   { name: 'version', type: struct.Int32LE },
   { name: 'ins', type: struct.VarArray(varint, struct([
-    { name: 'hash', type: exports.Buffer32 },
+    { name: 'hash', type: exports.buffer32 },
     { name: 'index', type: struct.UInt32LE },
-    { name: 'script', type: exports.VarBuffer },
+    { name: 'script', type: exports.varBuffer },
     { name: 'sequence', type: struct.UInt32LE }
   ])) },
   { name: 'outs', type: struct.VarArray(varint, struct([
-    { name: 'valueBuffer', type: exports.Buffer8 },
-    { name: 'script', type: exports.VarBuffer }
+    { name: 'valueBuffer', type: exports.buffer8 },
+    { name: 'script', type: exports.varBuffer }
   ])) },
   { name: 'locktime', type: struct.UInt32LE }
 ])
 
-exports.Header = struct([
+exports.header = struct([
   { name: 'version', type: struct.Int32LE },
-  { name: 'prevHash', type: exports.Buffer32 },
-  { name: 'merkleRoot', type: exports.Buffer32 },
+  { name: 'prevHash', type: exports.buffer32 },
+  { name: 'merkleRoot', type: exports.buffer32 },
   { name: 'timestamp', type: struct.UInt32LE },
   { name: 'bits', type: struct.UInt32LE },
   { name: 'nonce', type: struct.UInt32LE }

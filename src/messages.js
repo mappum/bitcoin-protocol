@@ -70,48 +70,48 @@ function createStructs (overrideTypes) {
   return {
     // Data Messages
     block: struct([
-      { name: 'header', type: types.Header },
-      { name: 'transactions', type: struct.VarArray(varint, types.Transaction) }
+      { name: 'header', type: types.header },
+      { name: 'transactions', type: struct.VarArray(varint, types.transaction) }
     ]),
     getblocks: struct([
       { name: 'version', type: struct.UInt32BE },
-      { name: 'locator', type: struct.VarArray(varint, types.Buffer32) },
-      { name: 'hashStop', type: types.Buffer32 }
+      { name: 'locator', type: struct.VarArray(varint, types.buffer32) },
+      { name: 'hashStop', type: types.buffer32 }
     ]),
-    getdata: struct.VarArray(varint, types.InventoryVector),
+    getdata: struct.VarArray(varint, types.inventoryVector),
     getheaders: struct([
       { name: 'version', type: struct.UInt32BE },
-      { name: 'locator', type: struct.VarArray(varint, types.Buffer32) },
-      { name: 'hashStop', type: types.Buffer32 }
+      { name: 'locator', type: struct.VarArray(varint, types.buffer32) },
+      { name: 'hashStop', type: types.buffer32 }
     ]),
     headers: struct.VarArray(varint, struct([
-      { name: 'header', type: types.Header },
+      { name: 'header', type: types.header },
       { name: 'numTransactions', type: varint }
     ])),
-    inv: struct.VarArray(varint, types.InventoryVector),
+    inv: struct.VarArray(varint, types.inventoryVector),
     mempool: struct([]),
     merkleblock: struct([
-      { name: 'header', type: types.Header },
+      { name: 'header', type: types.header },
       { name: 'numTransactions', type: struct.UInt32LE },
-      { name: 'hashes', type: struct.VarArray(varint, types.Buffer32) },
-      { name: 'flags', type: types.VarBuffer }
+      { name: 'hashes', type: struct.VarArray(varint, types.buffer32) },
+      { name: 'flags', type: types.varBuffer }
     ]),
-    notfound: struct.VarArray(varint, types.InventoryVector),
-    tx: types.Transaction,
+    notfound: struct.VarArray(varint, types.inventoryVector),
+    tx: types.transaction,
 
     // Control Messages
     addr: struct.VarArray(varint, struct([
       { name: 'time', type: struct.UInt32LE },
-      { name: 'services', type: types.Buffer8 },
-      { name: 'address', type: types.IPAddress },
+      { name: 'services', type: types.buffer8 },
+      { name: 'address', type: types.ipAddress },
       { name: 'port', type: struct.UInt16BE }
     ])),
     alert: struct([
-      { name: 'payload', type: types.VarBuffer }, // TODO: parse automatically?
-      { name: 'signature', type: types.VarBuffer }
+      { name: 'payload', type: types.varBuffer }, // TODO: parse automatically?
+      { name: 'signature', type: types.varBuffer }
     ]),
     filteradd: struct([
-      { name: 'data', type: types.VarBuffer }
+      { name: 'data', type: types.varBuffer }
     ]),
     filterload: struct([
       { name: 'data', type: struct.VarArray(varint, struct.UInt8) },
@@ -121,21 +121,21 @@ function createStructs (overrideTypes) {
     ]),
     filterclear: struct([]),
     getaddr: struct([]),
-    ping: struct([ { name: 'nonce', type: types.Buffer8 } ]),
-    pong: struct([ { name: 'nonce', type: types.Buffer8 } ]),
+    ping: struct([ { name: 'nonce', type: types.buffer8 } ]),
+    pong: struct([ { name: 'nonce', type: types.buffer8 } ]),
     reject: reject,
     sendheaders: struct([]),
     verack: struct([]),
     version: struct([
       { name: 'version', type: struct.UInt32LE },
-      { name: 'services', type: types.Buffer8 },
+      { name: 'services', type: types.buffer8 },
       { name: 'timestamp', type: struct.UInt64LE },
-      { name: 'receiverAddress', type: types.PeerAddress },
-      { name: 'senderAddress', type: types.PeerAddress },
-      { name: 'nonce', type: types.Buffer8 },
+      { name: 'receiverAddress', type: types.peerAddress },
+      { name: 'senderAddress', type: types.peerAddress },
+      { name: 'nonce', type: types.buffer8 },
       { name: 'userAgent', type: struct.VarString(varint, 'ascii') },
       { name: 'startHeight', type: struct.Int32LE },
-      { name: 'relay', type: types.Boolean }
+      { name: 'relay', type: types.boolean }
     ])
   }
 }
