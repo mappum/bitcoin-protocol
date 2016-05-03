@@ -182,12 +182,14 @@ The formats for the objects used as message payloads for the various commands ar
 #### `block`
 ```js
 {
-  version: Number,
-  prevHash: Buffer, // 32 bytes
-  merkleRoot: Buffer, // 32 bytes
-  timestamp: Number,
-  bits: Number,
-  nonce: Number,
+  header: {
+    version: Number,
+    prevHash: Buffer, // 32 bytes
+    merkleRoot: Buffer, // 32 bytes
+    timestamp: Number,
+    bits: Number,
+    nonce: Number,
+  },
   transactions: [
     {}, // same format as 'tx' message
     ...
@@ -199,12 +201,14 @@ The formats for the objects used as message payloads for the various commands ar
 ```js
 [
   {
-    version: Number,
-    prevHash: Buffer, // 32 bytes
-    merkleRoot: Buffer, // 32 bytes
-    timestamp: Number,
-    bits: Number,
-    nonce: Number,
+    header: {
+      version: Number,
+      prevHash: Buffer, // 32 bytes
+      merkleRoot: Buffer, // 32 bytes
+      timestamp: Number,
+      bits: Number,
+      nonce: Number,
+    },
     nTransactions: Number
   },
   ...
@@ -254,9 +258,9 @@ The formats for the objects used as message payloads for the various commands ar
     merkleRoot: Buffer, // 32 bytes
     timestamp: Number,
     bits: Number,
-    nonce: Number,
-    nTransactions: Number
+    nonce: Number
   },
+  numTransactions: Number,
   hashes: [
     Buffer // 32 bytes
   ],
