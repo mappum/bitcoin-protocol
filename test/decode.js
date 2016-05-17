@@ -127,7 +127,7 @@ test('decode stream', function (t) {
 
   t.test('buffering', function (t) {
     var stream = bp.createDecodeStream()
-    var data = new Buffer('f9beb4d970696e67000000000000000008000000137ad663', 'hex')
+    var data = new Buffer('f9beb4d970696e67000000000000000008000000137ad6630123456789abcdef', 'hex')
     stream.once('data', function (message) {
       t.true(message, 'got data')
       t.same(message.magic, 3652501241, 'correct magic')
@@ -136,8 +136,9 @@ test('decode stream', function (t) {
       t.same(message.payload.nonce.toString('hex'), '0123456789abcdef', 'correct nonce')
       t.end()
     })
-    for (var i = 0; i < data.length; ++i) stream.write(data.slice(i, 1))
-    t.end()
+    for (var i = 0; i < data.length; ++i) {
+      stream.write(data.slice(i, i + 1))
+    }
   })
 
   t.end()
