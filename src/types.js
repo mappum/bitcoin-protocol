@@ -61,7 +61,7 @@ exports.peerAddress = struct([
 
 exports.inventoryVector = struct([
   { name: 'type', type: struct.UInt32LE },
-  { name: 'hash', type: struct.Buffer(32) }
+  { name: 'hash', type: exports.buffer32 }
 ])
 
 exports.alertPayload = struct([
