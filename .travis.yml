@@ -16,10 +16,6 @@ env:
   global:
     - PATH=./bitcoin-0.12.0/bin:$PATH
   matrix:
-    - TEST_SUITE=unit
-    - TEST_SUITE=integration
-matrix:
-  include:
-    - node_js: "4"
-      env: TEST_SUITE=lint
+    - TEST_SUITE=test
+    - TEST_SUITE=test-integration
 script: npm run $TEST_SUITE

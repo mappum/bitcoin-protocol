@@ -27,11 +27,8 @@
     "url": "https://github.com/mappum/bitcoin-protocol.git"
   },
   "scripts": {
-    "coverage": "nyc npm run unit",
-    "integration": "tape test/integration/*.js | faucet",
-    "lint": "standard",
-    "test": "npm run lint && npm run unit",
-    "unit": "tape test/*.js | faucet"
+    "test-integration": "tape test/integration/*.js | faucet",
+    "test": "standard && nyc tape test/*.js | faucet && nyc report"
   },
   "dependencies": {
     "bl": "^1.0.1",
