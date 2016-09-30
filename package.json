@@ -33,7 +33,7 @@
   },
   "dependencies": {
     "bl": "^1.0.1",
-    "buffer-equals": "^1.0.3",
+    "buffer-equals": "^1.0.4",
     "create-hash": "^1.1.2",
     "from2": "^2.1.1",
     "ip": "^1.1.0",
