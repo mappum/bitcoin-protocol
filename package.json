@@ -48,7 +48,7 @@
     "coininfo": "^0.8.1",
     "faucet": "0.0.1",
     "nyc": "^6.1.1",
-    "standard": "^6.0.3",
+    "standard": "^8.4.0",
     "stream-buffers": "^3.0.0",
     "tape": "^4.5.1",
     "tmp": "0.0.28",
