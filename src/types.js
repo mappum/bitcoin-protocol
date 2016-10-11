@@ -106,16 +106,22 @@ exports.messageCommand = (function () {
 
 exports.transaction = struct([
   { name: 'version', type: struct.Int32LE },
-  { name: 'ins', type: struct.VarArray(varint, struct([
-    { name: 'hash', type: exports.buffer32 },
-    { name: 'index', type: struct.UInt32LE },
-    { name: 'script', type: exports.varBuffer },
-    { name: 'sequence', type: struct.UInt32LE }
-  ])) },
-  { name: 'outs', type: struct.VarArray(varint, struct([
-    { name: 'valueBuffer', type: exports.buffer8 },
-    { name: 'script', type: exports.varBuffer }
-  ])) },
+  {
+    name: 'ins',
+    type: struct.VarArray(varint, struct([
+      { name: 'hash', type: exports.buffer32 },
+      { name: 'index', type: struct.UInt32LE },
+      { name: 'script', type: exports.varBuffer },
+      { name: 'sequence', type: struct.UInt32LE }
+    ]))
+  },
+  {
+    name: 'outs',
+    type: struct.VarArray(varint, struct([
+      { name: 'valueBuffer', type: exports.buffer8 },
+      { name: 'script', type: exports.varBuffer }
+    ]))
+  },
   { name: 'locktime', type: struct.UInt32LE }
 ])
 
