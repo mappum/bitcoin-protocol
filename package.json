@@ -36,7 +36,7 @@
     "buffer-equals": "^1.0.3",
     "create-hash": "^1.1.2",
     "from2": "^2.1.1",
-    "ip": "^1.1.0",
+    "ip": "^1.1.4",
     "through2": "^2.0.0",
     "varstruct": "^5.2.0",
     "varuint-bitcoin": "^1.0.1"
