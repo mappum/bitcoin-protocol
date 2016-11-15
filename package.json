@@ -47,7 +47,7 @@
     "buffer-reverse": "^1.0.1",
     "coininfo": "^0.8.1",
     "faucet": "0.0.1",
-    "nyc": "^6.1.1",
+    "nyc": "^9.0.1",
     "standard": "^6.0.3",
     "stream-buffers": "^3.0.0",
     "tape": "^4.5.1",
