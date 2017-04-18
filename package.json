@@ -39,7 +39,7 @@
     "ip": "^1.1.0",
     "through2": "^2.0.0",
     "varstruct": "^5.2.0",
-    "varuint-bitcoin": "^1.0.1"
+    "varuint-bitcoin": "^1.0.4"
   },
   "devDependencies": {
     "bitcoin": "^3.0.1",
