@@ -45,7 +45,7 @@
     "bitcoin": "^3.0.1",
     "bitcoinjs-lib": "^2.2.0",
     "buffer-reverse": "^1.0.1",
-    "coininfo": "^0.8.1",
+    "coininfo": "^0.9.1",
     "faucet": "0.0.1",
     "nyc": "^6.1.1",
     "standard": "^6.0.3",
