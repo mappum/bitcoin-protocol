@@ -43,7 +43,7 @@
   },
   "devDependencies": {
     "bitcoin": "^3.0.1",
-    "bitcoinjs-lib": "^2.2.0",
+    "bitcoinjs-lib": "^3.0.2",
     "buffer-reverse": "^1.0.1",
     "coininfo": "^0.8.1",
     "faucet": "0.0.1",
