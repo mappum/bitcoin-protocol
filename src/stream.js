@@ -75,7 +75,7 @@ exports.createDecodeStream = function (opts) {
         return cb(err)
       }
       if (command.decode.bytes !== message.length) {
-        return cb(new Error('Message length did not match header. ' +
+        return cb(new Error('Message (command ' + message.command + ') length did not match header. ' +
           'In header: ' + message.length + ', read: ' + command.decode.bytes))
       }
 
