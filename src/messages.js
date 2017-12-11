@@ -136,6 +136,11 @@ function createStructs (overrideTypes) {
       { name: 'userAgent', type: struct.VarString(varint, 'ascii') },
       { name: 'startHeight', type: struct.Int32LE },
       { name: 'relay', type: types.boolean }
+    ]),
+
+    // BIP 0133
+    feefilter: struct([
+      { name: 'feerate', type: types.buffer8 }
     ])
   })
 }
