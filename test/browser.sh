@@ -1,12 +1,14 @@
 #!/bin/sh
 
 if [ $BROWSER ]; then
-  zuul \
+  airtap \
     --browser-name $BROWSER \
     --browser-version latest \
-    --ui tape \
-    -- test/*.js \
-    || exit 1
+    --loopback airtap.local \
+    -- test/*.js
 else
-  zuul --local --ui tape -- test/*.js || exit 1
+  airtap \
+    --local \
+    --open \
+    -- test/*.js
 fi

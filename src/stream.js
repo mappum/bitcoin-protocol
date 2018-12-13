@@ -1,25 +1,25 @@
 'use strict'
-var BufferList = require('bl')
-var through = require('through2').obj
-var struct = require('varstruct')
-var createHash = require('create-hash')
-var bufferEquals = require('buffer-equals')
-var types = require('./types')
-var defaultMessages = require('./messages').defaultMessages
+
+const BufferList = require('bl')
+const through = require('through2').obj
+const struct = require('varstruct')
+const createHash = require('create-hash')
+const types = require('./types')
+const defaultMessages = require('./messages').defaultMessages
 
 function getChecksum (data) {
-  var tmp = createHash('sha256').update(data).digest()
+  let tmp = createHash('sha256').update(data).digest()
   return createHash('sha256').update(tmp).digest().slice(0, 4)
 }
 
-var messageHeader = struct([
+const messageHeader = struct([
   { name: 'magic', type: struct.UInt32LE },
   { name: 'command', type: types.messageCommand },
   { name: 'length', type: struct.UInt32LE },
   { name: 'checksum', type: struct.Buffer(4) }
 ])
 
-var HEADER_LENGTH = messageHeader.encodingLength({
+const HEADER_LENGTH = messageHeader.encodingLength({
   magic: 0,
   command: '',
   length: 0,
@@ -28,9 +28,9 @@ var HEADER_LENGTH = messageHeader.encodingLength({
 
 exports.createDecodeStream = function (opts) {
   opts = opts || {}
-  var messages = opts.messages || defaultMessages
-  var bl = new BufferList()
-  var message
+  let messages = opts.messages || defaultMessages
+  let bl = new BufferList()
+  let message
   return through(function (chunk, enc, cb) {
     bl.append(chunk)
     while (bl.length > 0) {
@@ -56,15 +56,15 @@ exports.createDecodeStream = function (opts) {
       }
       if (message.length > bl.length) break
 
-      var payload = bl.slice(0, message.length)
-      var checksum = getChecksum(payload)
-      if (!bufferEquals(checksum, message.checksum)) {
+      let payload = bl.slice(0, message.length)
+      let checksum = getChecksum(payload)
+      if (!checksum.equals(message.checksum)) {
         return cb(new Error('Invalid message checksum. ' +
           'In header: "' + message.checksum.toString('hex') + '", ' +
           'calculated: "' + checksum.toString('hex') + '"'))
       }
 
-      var command = messages[message.command]
+      let command = messages[message.command]
       if (typeof command === 'function') {
         command = command(message, payload)
       }
@@ -89,14 +89,14 @@ exports.createDecodeStream = function (opts) {
 
 exports.createEncodeStream = function (opts) {
   opts = opts || {}
-  var messages = opts.messages || defaultMessages
+  let messages = opts.messages || defaultMessages
   return through(function (chunk, enc, cb) {
-    var command = messages[chunk.command]
+    let command = messages[chunk.command]
     if (!command) {
       return cb(new Error('Unrecognized command: "' + chunk.command + '"'))
     }
 
-    var payload
+    let payload
     try {
       payload = command.encode(chunk.payload || {})
     } catch (err) {
@@ -110,7 +110,7 @@ exports.createEncodeStream = function (opts) {
     if (chunk.magic == null) {
       throw new Error('Must specify network magic value in stream options or in message object')
     }
-    var header
+    let header
     try {
       header = messageHeader.encode(chunk)
     } catch (err) {

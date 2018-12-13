@@ -1,4 +1,6 @@
-var stream = require('./src/stream')
+'use strict'
+
+const stream = require('./src/stream')
 
 module.exports = {
   createDecodeStream: stream.createDecodeStream,

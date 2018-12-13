@@ -1,35 +1,35 @@
-var struct = require('varstruct')
-var varint = require('varuint-bitcoin')
-var defaultTypes = require('./types.js')
+'use strict'
+
+const struct = require('varstruct')
+const varint = require('varuint-bitcoin')
+const defaultTypes = require('./types.js')
 
 function createMessages (messages) {
   function extend (child) {
-    var output = {}
-    for (var k in messages) output[k] = messages[k]
-    for (k in child) output[k] = child[k]
+    let output = {}
+    for (let k in messages) output[k] = messages[k]
+    for (let k in child) output[k] = child[k]
     return createMessages(output)
   }
-  for (var k in messages) {
+  for (let k in messages) {
     extend[k] = messages[k]
   }
   return extend
 }
 
 function createStructs (overrideTypes) {
-  var types = {}
-  for (var k in defaultTypes) types[k] = defaultTypes[k]
-  for (k in overrideTypes) types[k] = overrideTypes[k]
+  let types = Object.assign({}, defaultTypes, overrideTypes)
 
   // TODO: add segwit
-  var reject = (function () {
-    var baseStruct = struct([
+  let reject = (function () {
+    let baseStruct = struct([
       { name: 'message', type: struct.VarString(varint, 'ascii') },
       { name: 'ccode', type: struct.UInt8 },
       { name: 'reason', type: struct.VarString(varint, 'ascii') }
     ])
 
     function encode (value, buffer, offset) {
-      if (!buffer) buffer = new Buffer(encodingLength(value))
+      if (!buffer) buffer = Buffer.alloc(encodingLength(value))
       if (!offset) offset = 0
       baseStruct.encode(value, buffer, offset)
       encode.bytes = baseStruct.encode.bytes
@@ -46,10 +46,10 @@ function createStructs (overrideTypes) {
     function decode (buffer, offset, end) {
       if (!offset) offset = 0
       if (!end) end = buffer.length
-      var value = baseStruct.decode(buffer, offset, end)
+      let value = baseStruct.decode(buffer, offset, end)
       decode.bytes = baseStruct.decode.bytes
       if (decode.bytes === end) {
-        value.data = new Buffer(0)
+        value.data = Buffer.alloc(0)
       } else {
         value.data = buffer.slice(decode.bytes, end)
         decode.bytes = end
@@ -58,11 +58,11 @@ function createStructs (overrideTypes) {
     }
 
     function encodingLength (value) {
-      var dataLength = Buffer.isBuffer(value.data) ? value.data.length : 0
+      let dataLength = Buffer.isBuffer(value.data) ? value.data.length : 0
       return baseStruct.encodingLength(value) + dataLength
     }
 
-    return { encode: encode, decode: decode, encodingLength: encodingLength }
+    return { encode, decode, encodingLength }
   })()
 
   // https://bitcoin.org/en/developer-reference#p2p-network

@@ -1,8 +1,8 @@
 'use strict'
-var struct = require('varstruct')
-var varint = require('varuint-bitcoin')
-var ip = require('ip')
-var bufferEquals = require('buffer-equals')
+
+const struct = require('varstruct')
+const varint = require('varuint-bitcoin')
+const ip = require('ip')
 
 exports.buffer8 = struct.Buffer(8)
 exports.buffer32 = struct.Buffer(32)
@@ -18,13 +18,13 @@ exports.boolean = (function () {
   }
 
   encode.bytes = decode.bytes = 1
-  return { encode: encode, decode: decode, encodingLength: function () { return 1 } }
+  return { encode, decode, encodingLength: function () { return 1 } }
 })()
 
 exports.ipAddress = (function () {
-  var IPV4_PREFIX = new Buffer('00000000000000000000ffff', 'hex')
+  let IPV4_PREFIX = Buffer.from('00000000000000000000ffff', 'hex')
   function encode (value, buffer, offset) {
-    if (!buffer) buffer = new Buffer(16)
+    if (!buffer) buffer = Buffer.alloc(16)
     if (!offset) offset = 0
     if (offset + 16 > buffer.length) throw new RangeError('destination buffer is too small')
 
@@ -34,7 +34,7 @@ exports.ipAddress = (function () {
     } else if (ip.isV6Format(value)) {
       ip.toBuffer(value, buffer, offset)
     } else {
-      throw new Error('Invalid IP address value')
+      throw Error('Invalid IP address value')
     }
 
     return buffer
@@ -45,12 +45,12 @@ exports.ipAddress = (function () {
     if (!end) end = buffer.length
     if (offset + 16 > end) throw new RangeError('not enough data for decode')
 
-    var start = bufferEquals(buffer.slice(offset, offset + 12), IPV4_PREFIX) ? 12 : 0
+    let start = buffer.slice(offset, offset + 12).equals(IPV4_PREFIX) ? 12 : 0
     return ip.toString(buffer.slice(offset + start, offset + 16))
   }
 
   encode.bytes = decode.bytes = 16
-  return { encode: encode, decode: decode, encodingLength: function () { return 16 } }
+  return { encode, decode, encodingLength: () => 16 }
 })()
 
 exports.peerAddress = struct([
@@ -81,27 +81,30 @@ exports.alertPayload = struct([
 ])
 
 exports.messageCommand = (function () {
-  var buffer12 = struct.Buffer(12)
+  let buffer12 = struct.Buffer(12)
 
   function encode (value, buffer, offset) {
-    var bvalue = new Buffer(value, 'ascii')
-    var nvalue = new Buffer(12)
+    let bvalue = Buffer.from(value, 'ascii')
+    let nvalue = Buffer.alloc(12)
     bvalue.copy(nvalue, 0)
-    for (var i = bvalue.length; i < nvalue.length; ++i) nvalue[i] = 0
+    for (let i = bvalue.length; i < nvalue.length; ++i) nvalue[i] = 0
     return buffer12.encode(nvalue, buffer, offset)
   }
 
   function decode (buffer, offset, end) {
-    var bvalue = buffer12.decode(buffer, offset, end)
-    for (var stop = 0; bvalue[stop] !== 0; ++stop);
-    for (var i = stop; i < bvalue.length; ++i) {
-      if (bvalue[i] !== 0) throw new Error('Found a non-null byte after the first null byte in a null-padded string')
+    let bvalue = buffer12.decode(buffer, offset, end)
+    let stop
+    for (stop = 0; bvalue[stop] !== 0; ++stop);
+    for (let i = stop; i < bvalue.length; ++i) {
+      if (bvalue[i] !== 0) {
+        throw Error('Found a non-null byte after the first null byte in a null-padded string')
+      }
     }
     return bvalue.slice(0, stop).toString('ascii')
   }
 
   encode.bytes = decode.bytes = 12
-  return { encode: encode, decode: decode, encodingLength: function () { return 12 } }
+  return { encode, decode, encodingLength: () => 12 }
 })()
 
 exports.transaction = struct([
