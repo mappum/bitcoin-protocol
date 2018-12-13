@@ -76,11 +76,11 @@ test('encode stream', function (t) {
         ],
         outs: [
           {
-            valueBuffer: new Buffer('404b4c0000000000', 'hex'),
+            value: 5000000,
             script: new Buffer('76a9141aa0cd1cbea6e7458a7abad512a9d9ea1afb225e88ac', 'hex')
           },
           {
-            valueBuffer: new Buffer('80fae9c700000000', 'hex'),
+            value: 3354000000,
             script: new Buffer('76a9140eab5bea436a0484cfab12485efda0b78b4ecc5288ac', 'hex')
           }
         ],
