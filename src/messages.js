@@ -127,6 +127,7 @@ function createStructs (overrideTypes) {
     sendheaders: struct([]),
     verack: struct([]),
     version: struct([
+      // TODO: check version before decoding optional fields
       { name: 'version', type: struct.UInt32LE },
       { name: 'services', type: types.buffer8 },
       { name: 'timestamp', type: struct.UInt64LE },

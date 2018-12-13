@@ -118,7 +118,7 @@ exports.transaction = struct([
   {
     name: 'outs',
     type: struct.VarArray(varint, struct([
-      { name: 'valueBuffer', type: exports.buffer8 },
+      { name: 'value', type: struct.UInt64LE },
       { name: 'script', type: exports.varBuffer }
     ]))
   },
