@@ -107,7 +107,7 @@ exports.messageCommand = (function () {
   return { encode, decode, encodingLength: () => 12 }
 })()
 
-exports.transaction = struct([
+let transaction = struct([
   { name: 'version', type: struct.Int32LE },
   {
     name: 'ins',
@@ -127,6 +127,86 @@ exports.transaction = struct([
   },
   { name: 'locktime', type: struct.UInt32LE }
 ])
+let witnessTransaction = struct([
+  { name: 'version', type: struct.Int32LE },
+  { name: 'marker', type: struct.Byte },
+  { name: 'flag', type: struct.Byte },
+  {
+    name: 'ins',
+    type: struct.VarArray(varint, struct([
+      { name: 'hash', type: exports.buffer32 },
+      { name: 'index', type: struct.UInt32LE },
+      { name: 'script', type: exports.varBuffer },
+      { name: 'sequence', type: struct.UInt32LE }
+    ]))
+  },
+  {
+    name: 'outs',
+    type: struct.VarArray(varint, struct([
+      { name: 'value', type: struct.UInt64LE },
+      { name: 'script', type: exports.varBuffer }
+    ]))
+  }
+])
+let varBufferArray = struct.VarArray(varint, exports.varBuffer)
+exports.transaction = (function () {
+  function encode (value, buffer = Buffer.alloc(encodingLength(value)), offset = 0) {
+    value = Object.assign({}, value)
+    let hasWitness = value.ins.some(({ witness }) =>
+      witness != null && witness.length > 0)
+    let type = hasWitness ? witnessTransaction : transaction
+
+    if (hasWitness) {
+      value.marker = 0
+      value.flag = 1
+    }
+
+    type.encode(value, buffer, offset)
+    let bytes = type.encode.bytes
+
+    if (hasWitness) {
+      let encode = (type, value) => {
+        type.encode(value, buffer, offset + bytes)
+        bytes += type.encode.bytes
+      }
+      for (let input of value.ins) {
+        encode(varBufferArray, input.witness || [])
+      }
+      encode(struct.UInt32LE, value.locktime)
+    }
+
+    encode.bytes = bytes
+    return buffer.slice(offset, offset + bytes)
+  }
+
+  function decode (buffer, offset, end) {
+    let hasWitness = buffer[offset + 4] === 0
+    let type = hasWitness ? witnessTransaction : transaction
+
+    let tx = type.decode(buffer, offset, end)
+    decode.bytes = type.decode.bytes
+    return tx
+  }
+
+  function encodingLength (value) {
+    value = Object.assign({}, value)
+    let hasWitness = value.ins.some(({ witness }) =>
+      witness != null && witness.length > 0)
+    let type = hasWitness ? witnessTransaction : transaction
+
+    let witnessLength = 0
+    if (hasWitness) {
+      for (let input of value.ins) {
+        witnessLength += varBufferArray.encodingLength(input.witness || [])
+      }
+      witnessLength += 4
+    }
+
+    return type.encodingLength(value) + witnessLength
+  }
+
+  return { encode, decode, encodingLength }
+})()
 
 exports.header = struct([
   { name: 'version', type: struct.Int32LE },
