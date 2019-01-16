@@ -95,7 +95,7 @@ exports.messageCommand = (function () {
     let bvalue = buffer12.decode(buffer, offset, end)
     let stop
     for (stop = 0; bvalue[stop] !== 0; ++stop) {
-      if (stop === 12) {
+      if (stop === 11) {
         throw Error('Non-terminated string. Are you sure this is a Bitcoin packet?')
       }
     }
