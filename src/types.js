@@ -94,7 +94,11 @@ exports.messageCommand = (function () {
   function decode (buffer, offset, end) {
     let bvalue = buffer12.decode(buffer, offset, end)
     let stop
-    for (stop = 0; bvalue[stop] !== 0; ++stop);
+    for (stop = 0; bvalue[stop] !== 0; ++stop) {
+      if (stop === 12) {
+        throw Error('Non-terminated string. Are you sure this is a Bitcoin packet?')
+      }
+    }
     for (let i = stop; i < bvalue.length; ++i) {
       if (bvalue[i] !== 0) {
         throw Error('Found a non-null byte after the first null byte in a null-padded string')
