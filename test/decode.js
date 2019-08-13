@@ -141,5 +141,16 @@ test('decode stream', function (t) {
     }
   })
 
+  t.test('decode segwit tx', function (t) {
+    let txBytes = Buffer.from('02000000000101cc74c11e8edc805ec3a839af8d7245718b82b01e4b5254f432c16b0ad71750b6000000001716001480da5efb7fdef69b209153bba5e32f8efe12f3c7feffffff0200ca9a3b0000000017a91472a39471410b2e024c43e093c626180376c8029887081b6bee0000000017a9142b6e5ca8c93071ce5b94b0f5c294b46dca433260870247304402200f385da8e751d2e3d64ee9c0b5db225a284dd6c680cd6a9c0e594045df1c8e2c022075fd644f1e25a39dc135198aa6faf6b6127564c4f6cd3e97db5823e65d983fdd012102a723fca84b67e7c8dbf6110d6d72785bd474192822e9653ee168de00e6e64af767000000', 'hex')
+    let tx = bp.types.transaction.decode(txBytes)
+    t.same(tx.version, 2)
+    t.same(tx.marker, 0)
+    t.same(tx.flag, 1)
+    t.same(tx.ins.length, 1)
+    t.same(tx.outs.length, 2)
+    t.end()
+  })
+
   t.end()
 })
