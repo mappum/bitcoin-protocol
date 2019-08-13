@@ -183,7 +183,7 @@ exports.transaction = (function () {
     return buffer.slice(offset, offset + bytes)
   }
 
-  function decode (buffer, offset, end) {
+  function decode (buffer, offset = 0, end = buffer.length) {
     let hasWitness = buffer[offset + 4] === 0
     let type = hasWitness ? witnessTransaction : transaction
 
