@@ -137,7 +137,16 @@ function createStructs (overrideTypes) {
       { name: 'userAgent', type: struct.VarString(varint, 'ascii') },
       { name: 'startHeight', type: struct.Int32LE },
       { name: 'relay', type: types.boolean }
-    ])
+    ]),
+
+    // BIP 0152
+    sendcmpct:  struct([
+      { name: 'flag', type: types.boolean },
+      { name: 'version', type: types.buffer8 }
+    ]),
+    cmpctblock: struct([]), // @TODO
+    getblocktxn: struct([]), // @TODO
+    blocktxn: struct([]) // @TODO
   })
 }
 
