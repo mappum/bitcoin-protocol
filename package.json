@@ -33,7 +33,7 @@
     "test-browser": "npm run pretest && test/browser.sh"
   },
   "dependencies": {
-    "bl": "^1.0.1",
+    "bl": "^2.2.1",
     "create-hash": "^1.1.2",
     "ip": "^1.1.0",
     "through2": "^2.0.0",
