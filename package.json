@@ -41,7 +41,7 @@
     "varuint-bitcoin": "^1.0.1"
   },
   "devDependencies": {
-    "airtap": "^0.1.0",
+    "airtap": "^4.0.4",
     "bitcoin": "^3.0.1",
     "bitcoinjs-lib": "^2.2.0",
     "buffer-reverse": "^1.0.1",
